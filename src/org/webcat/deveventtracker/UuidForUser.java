@@ -21,6 +21,10 @@
 
 package org.webcat.deveventtracker;
 
+import java.util.UUID;
+
+import com.webobjects.eocontrol.EOEditingContext;
+
 // -------------------------------------------------------------------------
 /**
  * TODO: place a real description here.
@@ -45,5 +49,4 @@ public class UuidForUser
 
 
     //~ Methods ...............................................................
-
 }

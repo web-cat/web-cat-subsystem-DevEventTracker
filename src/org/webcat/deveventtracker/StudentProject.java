@@ -21,6 +21,14 @@
 
 package org.webcat.deveventtracker;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import org.webcat.core.RepositoryProvider;
+import org.webcat.core.User;
+
 // -------------------------------------------------------------------------
 /**
  * TODO: place a real description here.
@@ -31,6 +39,7 @@ package org.webcat.deveventtracker;
  */
 public class StudentProject
     extends _StudentProject
+    implements RepositoryProvider
 {
     //~ Constructors ..........................................................
 
@@ -43,7 +52,24 @@ public class StudentProject
         super();
     }
 
-
     //~ Methods ...............................................................
 
+	public void initializeRepositoryContents(File file) throws IOException {
+		File readme = new File(file, "/readme.txt");
+		readme.createNewFile();
+		FileWriter fw = new FileWriter(readme);
+		BufferedWriter out = new BufferedWriter(fw);
+		out.write("This repository is used for storing student code snapshots as they work. There is one repository per Eclipse project they work on");
+		out.flush();
+		out.close();
+	}
+
+	public boolean userCanAccessRepository(User user) {
+		return this.accessibleByUser(user);
+	}
+	
+	public boolean accessibleByUser(User user)
+	{
+		return this.students().contains(user);
+	}
 }

@@ -180,8 +180,8 @@ public class event
     		if(!foundProject)
     		{
     			//TODO Look up AssignmentOffering
-    			AssignmentOffering offering = null;
-    			createProjectForAssignment(ec, offering.availableFrom(), offering.lateDeadline(), offering);
+    			//AssignmentOffering offering = null;
+    			//createProjectForAssignment(ec, offering.availableFrom(), offering.lateDeadline(), offering);
     		}
 		    ec.saveChanges();
 		    

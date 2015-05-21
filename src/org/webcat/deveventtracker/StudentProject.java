@@ -72,4 +72,9 @@ public class StudentProject
 	{
 		return this.students().contains(user);
 	}
+	
+    public String apiId()
+    {
+        return this.uuid();
+    }
 }

@@ -155,9 +155,7 @@ public class event
     		studentProject = StudentProject.create(ec);
     		studentProject.setUri(projectUri);
     		studentProject.setUuid(UUID.randomUUID().toString());
-    		NSMutableArray<User> newStudents = new NSMutableArray<User>();
-    		newStudents.add(user);
-    		studentProject.setStudents(newStudents);
+    		studentProject.addToStudentsRelationship(user);
     		
     		
     		//is there a PFA that has the same user and this uri matches the assignment #/name
@@ -303,14 +301,5 @@ public class event
     	//Match to existing ProjectsForAssignment, create new where necessary.
     	
     	return null;
-    }
-    
-    public  WOActionResults pushAction()
-    {
-    	SensorData associatedEvent = null; //= SensorData.uniqueObjectMatchingQualifier(context, qualifier)
-    	GitRepository repo = GitRepository.repositoryForObject(associatedEvent.project());
-    	SimpleMessageResponse page = pageWithName(SimpleMessageResponse.class);
-    	page.message = "Snapshot pushed successfully";
-    	return page;
     }
 }

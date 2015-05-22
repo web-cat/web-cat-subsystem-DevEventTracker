@@ -68,6 +68,16 @@ public class DevEventTrackerDatabaseUpdates
         createStudentProjectStudentTable();
         createUuidForUserTable();
     }
+    
+    /**
+     * Adds column for commit hash in SensorData table.
+     * @throws SQLException on error
+     */
+    public void updateIncrement1() throws SQLException
+    {
+        database().executeSQL(
+            "alter table SENSORDATA add commitHash MEDIUMTEXT");
+    }
 
 
     //~ Private Methods .......................................................

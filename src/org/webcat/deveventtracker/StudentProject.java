@@ -112,6 +112,7 @@ public class StudentProject extends _StudentProject implements
 		return NSArray.<User> emptyArray();
 	}
 
+	
 	public User authorizedUserForRepository(EOEditingContext ec, String altUsername,
 			String altPassword) {
 		if (this.uuid().equals(altPassword)) {

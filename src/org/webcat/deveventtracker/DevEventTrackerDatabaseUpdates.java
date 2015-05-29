@@ -30,6 +30,7 @@ import org.webcat.dbupdate.UpdateSet;
  * underlying the DevEventTracker subsystem and the DevEventTracker.eomodeld.
  * 
  * @author Stephen Edwards
+ * @author Joseph Luke
  * @author Last changed by $Author$
  * @version $Revision$, $Date$
  */

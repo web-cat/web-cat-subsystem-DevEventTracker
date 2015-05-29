@@ -21,6 +21,8 @@
 
 package org.webcat.deveventtracker;
 
+import com.webobjects.eocontrol.EOEditingContext;
+
 // -------------------------------------------------------------------------
 /**
  * TODO: place a real description here.
@@ -45,5 +47,22 @@ public class SensorDataType
 
 
     //~ Methods ...............................................................
-
+    /**
+     * Returns the SensorDataType associated with the given string (one of the public static Strings declared in this class),
+     * or creates it and returns it if necessary.
+     * @param ec The EOEditingContext to use.
+     * @param type The name of the SensorDataType to look up/create (one of the public static Strings in this class).
+     * @return The SensorDataType corresponding to the given name.
+     */
+    public static SensorDataType getSensorDataType(EOEditingContext ec, String type)
+    {
+    	SensorDataType storedType = SensorDataType.uniqueObjectMatchingQualifier(ec, SensorDataType.name.is(type));
+    	if(storedType != null)
+    	{
+    		return storedType;
+    	}
+    	storedType = SensorDataType.create(ec, type);
+    	ec.saveChanges();
+    	return storedType;
+    }
 }

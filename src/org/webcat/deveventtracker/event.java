@@ -1,7 +1,7 @@
 /*==========================================================================*\
  |  $Id$
  |*-------------------------------------------------------------------------*|
- |  Copyright (C) 2014 Virginia Tech
+ |  Copyright (C) 2015 Virginia Tech
  |
  |  This file is part of Web-CAT.
  |
@@ -23,6 +23,7 @@ package org.webcat.deveventtracker;
 
 import java.util.UUID;
 
+import org.apache.log4j.Logger;
 import org.webcat.core.AuthenticationDomain;
 import org.webcat.core.Course;
 import org.webcat.core.CourseOffering;
@@ -44,518 +45,588 @@ import er.extensions.appserver.ERXDirectAction;
 //-------------------------------------------------------------------------
 /**
  * This direct action class handles all response actions for this subsystem.
- * 
+ *
  * @author edwards
  * @author Joseph Luke
  * @author Last changed by $Author$
  * @version $Revision$, $Date$
  */
-public class event extends ERXDirectAction {
+public class event
+    extends ERXDirectAction
+{
 
-	// ~ Constructor ...........................................................
+    // ~ Constructor ...........................................................
 
-	// ----------------------------------------------------------
-	/**
-	 * Creates a new DirectAction object.
-	 * 
-	 * @param aRequest
-	 *            The request to respond to
-	 */
-	public event(WORequest aRequest) {
-		super(aRequest);
-	}
+    // ----------------------------------------------------------
+    /**
+     * Creates a new DirectAction object.
+     *
+     * @param aRequest
+     *            The request to respond to
+     */
+    public event(WORequest aRequest)
+    {
+        super(aRequest);
+    }
 
-	// ~ Methods ...............................................................
+    // ~ Methods ...............................................................
 
-	/**
-	 * The default action simply returns an invalid request response.
-	 * 
-	 * @return The session response
-	 */
-	public WOActionResults defaultAction() {
-		return pageWithName(SimpleMessageResponse.class);
-	}
+    // ----------------------------------------------------------
+    /**
+     * The default action simply returns an invalid request response.
+     *
+     * @return The session response
+     */
+    public WOActionResults defaultAction()
+    {
+        log.debug("defaultAction()");
+        return response("Invalid request");
+    }
 
-	/**
-	 * Returns a user's UUID if one exists for the given email. If the user
-	 * exists, but does not have a UUID, create one. If no user exists, inform
-	 * the requester.
-	 * 
-	 * @return The page containing the UUID of the user or a message stating
-	 *         that no such user exists.
-	 */
-	public WOActionResults retrieveUserAction() {
-		EOEditingContext ec = session().defaultEditingContext();
-		WORequest request = request();
 
-		// Get parameters.
-		String email = request.stringFormValueForKey("email");
+    // ----------------------------------------------------------
+    /**
+     * Returns a user's UUID if one exists for the given email. If the user
+     * exists, but does not have a UUID, create one. If no user exists, inform
+     * the requester.
+     *
+     * @return The page containing the UUID of the user or a message stating
+     *         that no such user exists.
+     */
+    public WOActionResults retrieveUserAction()
+    {
+        log.debug("retrieveUserAction()");
+        EOEditingContext ec = session().defaultEditingContext();
+        WORequest request = request();
 
-		// If we weren't given an email, we create a UUIDForUser with no
-		// associated user,
-		// then fill the user in later (via confirmUUID action).
-		if (email == null || email.equals("")) {
-			UuidForUser noUserUuid = UuidForUser.create(ec, UUID.randomUUID()
-					.toString());
+        // Get parameters.
+        String email = request.stringFormValueForKey("email");
 
-			RetrieveUserResponse page = pageWithName(RetrieveUserResponse.class);
-			page.uuid = noUserUuid.uuid();
-			return page;
-		}
+        // If we weren't given an email, we create a UUIDForUser with no
+        // associated user,
+        // then fill the user in later (via confirmUUID action).
+        if (email == null || email.equals(""))
+        {
+            UuidForUser noUserUuid = UuidForUser.create(
+                ec, UUID.randomUUID().toString());
 
-		// TODO: Fix this (API change the lookupUserByEMail method)
-		// Incorrect signature (confirmed by Edwards)
-		AuthenticationDomain domain = AuthenticationDomain.forId(ec, 1);
-		User user = User.lookupUserByEmail(ec, email, domain);
+            RetrieveUserResponse page =
+                pageWithName(RetrieveUserResponse.class);
+            page.uuid = noUserUuid.uuid();
+            return page;
+        }
 
-		// No base User found, so we can't have or make a UuidForUser.
-		if (user == null) {
-			SimpleMessageResponse page = pageWithName(SimpleMessageResponse.class);
-			page.message = "No user found for that email.";
-			return page;
-		}
+        // TODO: Fix this (API change the lookupUserByEMail method)
+        // Incorrect signature (confirmed by Edwards)
+        AuthenticationDomain domain = AuthenticationDomain.forId(ec, 1);
+        User user = User.lookupUserByEmail(ec, email, domain);
 
-		UuidForUser uuidForUser = UuidForUser.uniqueObjectMatchingQualifier(ec,
-				UuidForUser.user.is(user));
+        // No base User found, so we can't have or make a UuidForUser.
+        if (user == null)
+        {
+            return response("No user found for that email.");
+        }
 
-		// This user doesn't have a UUID, so we need to make one.
-		if (uuidForUser == null) {
-			uuidForUser = UuidForUser.create(ec, UUID.randomUUID().toString());
-			uuidForUser.setUserRelationship(user);
-			ec.saveChanges();
-		}
+        UuidForUser uuidForUser = UuidForUser.uniqueObjectMatchingQualifier(
+            ec, UuidForUser.user.is(user));
 
-		// Return the page listing the String representation of this user's
-		// UUID.
-		RetrieveUserResponse page = pageWithName(RetrieveUserResponse.class);
-		page.uuid = uuidForUser.uuid();
+        // This user doesn't have a UUID, so we need to make one.
+        if (uuidForUser == null)
+        {
+            uuidForUser = UuidForUser.create(ec, UUID.randomUUID().toString());
+            uuidForUser.setUserRelationship(user);
+            ec.saveChanges();
+        }
 
-		return page;
-	}
+        // Return the page listing the String representation of this user's
+        // UUID.
+        RetrieveUserResponse page = pageWithName(RetrieveUserResponse.class);
+        page.uuid = uuidForUser.uuid();
 
-	/**
-	 * Given a projectUri and a userUUID, return the UUID of the StudentProject
-	 * associated with these, creating one if necessary.
-	 * 
-	 * @return The page containing the UUID for the StudentProject, or a message
-	 *         indicating no such StudentProject exists.
-	 */
-	public WOActionResults retrieveStudentProjectAction() {
-		EOEditingContext ec = session().defaultEditingContext();
-		WORequest request = request();
+        return page;
+    }
 
-		// Get parameters.
-		String projectUri = request.stringFormValueForKey("projectUri");
-		String userUuid = request.stringFormValueForKey("userUuid");
 
-		// Look up UuidForUser from userUUID, then use this to look up User
-		UuidForUser uuidForUser = UuidForUser.uniqueObjectMatchingQualifier(ec,
-				UuidForUser.uuid.is(userUuid));
+    // ----------------------------------------------------------
+    /**
+     * Given a projectUri and a userUUID, return the UUID of the StudentProject
+     * associated with these, creating one if necessary.
+     *
+     * @return The page containing the UUID for the StudentProject, or a message
+     *         indicating no such StudentProject exists.
+     */
+    public WOActionResults retrieveStudentProjectAction()
+    {
+        log.debug("retrieveStudentProjectAction()");
+        EOEditingContext ec = session().defaultEditingContext();
+        WORequest request = request();
 
-		// No base UuidForUser found, so we can't use it to make a new
-		// StudentProject.
-		if (uuidForUser == null) {
-			SimpleMessageResponse page = pageWithName(SimpleMessageResponse.class);
-			page.message = "No UuidForUser found for that UUID.";
-			return page;
-		}
-		/*
-		 * NSArray<StudentProject> studentProjects =
-		 * StudentProject.forUserUuid(ec, projectUri, uuidForUser);
-		 * StudentProject studentProject = null; if(studentProjects.size() > 0)
-		 * { studentProject = studentProjects.get(0); }
-		 */
-		NSArray<StudentProject> studentProjects = StudentProject
-				.objectsMatchingQualifier(ec, StudentProject.uri.is(projectUri)
-						.and(StudentProject.studentUuids.is(uuidForUser)));
-		// No StudentProject that matches both the projectUri and the userUuid
-		StudentProject studentProject;
-		if (studentProjects.size() > 0) {
-			studentProject = StudentProject.create(ec);
-			studentProject.setUri(projectUri);
-			studentProject.setUuid(UUID.randomUUID().toString());
-			studentProject.addToStudentUuidsRelationship(uuidForUser);
+        // Get parameters.
+        String projectUri = request.stringFormValueForKey("projectUri");
+        String userUuid = request.stringFormValueForKey("userUuid");
 
-			ec.saveChanges();
+        // Look up UuidForUser from userUUID, then use this to look up User
+        UuidForUser uuidForUser = UuidForUser.uniqueObjectMatchingQualifier(
+            ec, UuidForUser.uuid.is(userUuid));
 
-			// Create a new repository for this student project.
-			GitRepository.repositoryForObject(studentProject);
-		} else {
-			// TODO there needs to be tracking/check here to deal with same
-			// projectUri for same user on different computers/Eclipse
-			// installations.
-			studentProject = studentProjects.get(0);
-		}
+        // No base UuidForUser found, so we can't use it to make a new
+        // StudentProject.
+        if (uuidForUser == null)
+        {
+            return response("No UuidForUser found for that UUID.");
+        }
+        /*
+         * NSArray<StudentProject> studentProjects =
+         * StudentProject.forUserUuid(ec, projectUri, uuidForUser);
+         * StudentProject studentProject = null; if(studentProjects.size() > 0)
+         * { studentProject = studentProjects.get(0); }
+         */
+        NSArray<StudentProject> studentProjects = StudentProject.
+            objectsMatchingQualifier(
+                ec,
+                StudentProject.uri.is(projectUri)
+                .and(StudentProject.studentUuids.is(uuidForUser)));
+        // No StudentProject that matches both the projectUri and the userUuid
+        StudentProject studentProject;
+        if (studentProjects.size() > 0)
+        {
+            studentProject = StudentProject.create(ec);
+            studentProject.setUri(projectUri);
+            studentProject.setUuid(UUID.randomUUID().toString());
+            studentProject.addToStudentUuidsRelationship(uuidForUser);
 
-		Boolean userInActiveCourse = false;
+            ec.saveChanges();
 
-		User user = uuidForUser.user();
-		if (user != null) {
-			NSArray<CourseOffering> offeringsForUser = user.enrolledIn();
-			for (CourseOffering co : offeringsForUser) {
-				if (co.semester().semesterEndDate().after(new NSTimestamp())) {
-					userInActiveCourse = true;
-					break;
-				}
-			}
-		}
-		RetrieveStudentProjectResponse page = pageWithName(RetrieveStudentProjectResponse.class);
-		page.uuid = studentProject.uuid();
-		page.pushLogs = userInActiveCourse.toString();
-		return page;
-	}
+            // Create a new repository for this student project.
+            GitRepository.repositoryForObject(studentProject);
+        }
+        else
+        {
+            // TODO there needs to be tracking/check here to deal with same
+            // projectUri for same user on different computers/Eclipse
+            // installations.
+            studentProject = studentProjects.get(0);
+        }
 
-	/**
-	 * Stores the given SensorData information, assuming all parameters are
-	 * valid.
-	 * 
-	 * @return The page stating success or failure for storing the SensorData.
-	 */
-	public WOActionResults postSensorDataAction() {
-		EOEditingContext ec = session().defaultEditingContext();
-		WORequest request = request();
+        Boolean userInActiveCourse = false;
 
-		// Get parameters.
-		String studentProjectUuid = request
-				.stringFormValueForKey("studentProjectUuid");
-		String userUuid = request.stringFormValueForKey("userUuid");
-		String timeString = request.stringFormValueForKey("time");
-		String runtimeString = request.stringFormValueForKey("runtime");
-		String tool = request.stringFormValueForKey("tool");
-		String sensorDataTypeName = request
-				.stringFormValueForKey("sensorDataType");
-		String uri = request.stringFormValueForKey("uri");
-		String commitHash = request.stringFormValueForKey("CommitHash");
+        User user = uuidForUser.user();
+        if (user != null)
+        {
+            NSArray<CourseOffering> offeringsForUser = user.enrolledIn();
+            for (CourseOffering co : offeringsForUser)
+            {
+                if (co.semester().semesterEndDate().after(new NSTimestamp()))
+                {
+                    userInActiveCourse = true;
+                    break;
+                }
+            }
+        }
+        RetrieveStudentProjectResponse page =
+            pageWithName(RetrieveStudentProjectResponse.class);
+        page.uuid = studentProject.uuid();
+        page.pushLogs = userInActiveCourse.toString();
+        return page;
+    }
 
-		NSTimestamp time = new NSTimestamp(Long.parseLong(timeString));
-		NSTimestamp runtime = new NSTimestamp(Long.parseLong(runtimeString));
 
-		// Look up UuidForUser from userUUID, then use this to look up User
-		UuidForUser uuidForUser = UuidForUser.uniqueObjectMatchingQualifier(ec,
-				UuidForUser.uuid.is(userUuid));
+    // ----------------------------------------------------------
+    /**
+     * Stores the given SensorData information, assuming all parameters are
+     * valid.
+     *
+     * @return The page stating success or failure for storing the SensorData.
+     */
+    public WOActionResults postSensorDataAction()
+    {
+        log.debug("postSensorDataAction()");
+        EOEditingContext ec = session().defaultEditingContext();
+        WORequest request = request();
 
-		// No base UuidForUser found, so we can't use it to make a new
-		// StudentProject.
-		if (uuidForUser == null) {
-			SimpleMessageResponse page = pageWithName(SimpleMessageResponse.class);
-			page.message = "NNo UuidForUser found for that UUID.";
-			return page;
-		}
+        // Get parameters.
+        String studentProjectUuid = request
+                .stringFormValueForKey("studentProjectUuid");
+        String userUuid = request.stringFormValueForKey("userUuid");
+        String timeString = request.stringFormValueForKey("time");
+        String runtimeString = request.stringFormValueForKey("runtime");
+        String tool = request.stringFormValueForKey("tool");
+        String sensorDataTypeName = request
+                .stringFormValueForKey("sensorDataType");
+        String uri = request.stringFormValueForKey("uri");
+        String commitHash = request.stringFormValueForKey("CommitHash");
 
-		User user = uuidForUser.user();
-		if (user == null) {
-			SimpleMessageResponse page = pageWithName(SimpleMessageResponse.class);
-			page.message = "No user found for that UUID.";
-			return page;
-		}
+        NSTimestamp time = new NSTimestamp(Long.parseLong(timeString));
+        NSTimestamp runtime = new NSTimestamp(Long.parseLong(runtimeString));
 
-		// Look up StudentProject from the given UUID.
-		StudentProject studentProject = StudentProject
-				.uniqueObjectMatchingQualifier(ec,
-						StudentProject.uuid.is(studentProjectUuid));
+        // Look up UuidForUser from userUUID, then use this to look up User
+        UuidForUser uuidForUser = UuidForUser.uniqueObjectMatchingQualifier(
+            ec, UuidForUser.uuid.is(userUuid));
 
-		// No StudentProject found for that UUID.
-		if (studentProject == null) {
-			SimpleMessageResponse page = pageWithName(SimpleMessageResponse.class);
-			page.message = "No student project found for that UUID";
-			return page;
-		}
+        // No base UuidForUser found, so we can't use it to make a new
+        // StudentProject.
+        if (uuidForUser == null)
+        {
+            return response("NNo UuidForUser found for that UUID.");
+        }
 
-		// Look up dataType based on name from given parameter.
-		SensorDataType dataType = SensorDataType.getSensorDataType(ec,
-				sensorDataTypeName);
+        User user = uuidForUser.user();
+        if (user == null)
+        {
+            return response("No user found for that UUID.");
+        }
 
-		// No SensorDataType found for that name.
-		if (dataType == null) {
-			SimpleMessageResponse page = pageWithName(SimpleMessageResponse.class);
-			page.message = "Invalid SensorDataType";
-			return page;
-		}
+        // Look up StudentProject from the given UUID.
+        StudentProject studentProject = StudentProject.
+            uniqueObjectMatchingQualifier(
+                ec, StudentProject.uuid.is(studentProjectUuid));
 
-		// create sensordata entry in database and populate from given data
-		SensorData sensorData = SensorData.create(ec, time, dataType, user);
-		sensorData.setProjectRelationship(studentProject);
-		sensorData.setRunTime(runtime);
-		sensorData.setTool(tool);
-		sensorData.setUri(uri);
-		if (commitHash != null) {
-			sensorData.setCommitHash(commitHash);
-		}
-		ec.saveChanges();
+        // No StudentProject found for that UUID.
+        if (studentProject == null) {
+            return response("No student project found for that UUID");
+        }
 
-		return pageWithName(PostSensorDataResponse.class);
-	}
+        // Look up dataType based on name from given parameter.
+        SensorDataType dataType = SensorDataType.getSensorDataType(ec,
+                sensorDataTypeName);
 
-	/**
-	 * Given that a submission happened for the given user for the given
-	 * project, look up the most recent submission for that user in the db and
-	 * create a ProjectForAssignment linking this StudentProject to the
-	 * AssignmentOffering (unless there already is a PFA doing this).
-	 * 
-	 * @return The page indicating success or failure for creating a new
-	 *         ProjectForAssignment.
-	 */
-	public WOActionResults submissionHappenedAction() {
-		EOEditingContext ec = session().defaultEditingContext();
-		WORequest request = request();
+        // No SensorDataType found for that name.
+        if (dataType == null)
+        {
+            return response("Invalid SensorDataType");
+        }
 
-		// Get parameters.
-		String userUuid = request.stringFormValueForKey("userUuid");
-		String studentProjectUuid = request
-				.stringFormValueForKey("studentProjectUuid");
+        // create sensordata entry in database and populate from given data
+        SensorData sensorData = SensorData.create(ec, time, dataType, user);
+        sensorData.setProjectRelationship(studentProject);
+        sensorData.setRunTime(runtime);
+        sensorData.setTool(tool);
+        sensorData.setUri(uri);
+        if (commitHash != null) {
+            sensorData.setCommitHash(commitHash);
+        }
+        ec.saveChanges();
 
-		UuidForUser uuidForUser = UuidForUser.uniqueObjectMatchingQualifier(ec,
-				UuidForUser.uuid.is(userUuid));
-		if (uuidForUser == null) {
-			SimpleMessageResponse page = pageWithName(SimpleMessageResponse.class);
-			page.message = "No user found for that UUID.";
-			return page;
-		}
-		User user = uuidForUser.user();
+        return pageWithName(PostSensorDataResponse.class);
+    }
 
-		Submission latestSubmission = Submission.firstObjectMatchingQualifier(
-				ec, Submission.user.is(user), Submission.submitTime.descs());
-		if (latestSubmission == null) {
-			SimpleMessageResponse page = pageWithName(SimpleMessageResponse.class);
-			page.message = "No submissions found for that user.";
-			return page;
-		}
-		AssignmentOffering offering = latestSubmission.assignmentOffering();
 
-		StudentProject project = StudentProject.uniqueObjectMatchingQualifier(
-				ec, StudentProject.uuid.is(studentProjectUuid));
-		if (project == null) {
-			SimpleMessageResponse page = pageWithName(SimpleMessageResponse.class);
-			page.message = "No StudentProject found for that UUID.";
-			return page;
-		}
-		// If there is a PFA associated with this StudentProject that matches
-		// the
-		// given User and AssignmentOffering, we don't need to create one.
-		NSArray<ProjectForAssignment> pfas = project.projectsForAssignment();
-		for (ProjectForAssignment p : pfas) {
-			if (p.students().contains(user)
-					&& p.assignmentOffering().equals(offering)) {
-				SimpleMessageResponse page = pageWithName(SimpleMessageResponse.class);
-				page.message = "StudentProject already part of the correct ProjectForAssignment.";
-				return page;
-			}
-		}
-		// Otherwise, create a new PFA.
-		ProjectForAssignment pfa = ProjectForAssignment.create(ec, offering);
-		pfa.addToStudentsRelationship(user);
-		pfa.addToStudentProjectsRelationship(project);
-		pfa.setStart(offering.availableFrom());
-		pfa.setEnd(offering.lateDeadline());
+    // ----------------------------------------------------------
+    /**
+     * Given that a submission happened for the given user for the given
+     * project, look up the most recent submission for that user in the db and
+     * create a ProjectForAssignment linking this StudentProject to the
+     * AssignmentOffering (unless there already is a PFA doing this).
+     *
+     * @return The page indicating success or failure for creating a new
+     *         ProjectForAssignment.
+     */
+    public WOActionResults submissionHappenedAction()
+    {
+        log.debug("submissionHappenedAction()");
+        EOEditingContext ec = session().defaultEditingContext();
+        WORequest request = request();
 
-		ec.saveChanges();
-		SimpleMessageResponse page = pageWithName(SimpleMessageResponse.class);
-		page.message = "ProjectForAssignment created successfully.";
-		return page;
-	}
+        // Get parameters.
+        String userUuid = request.stringFormValueForKey("userUuid");
+        String studentProjectUuid = request
+                .stringFormValueForKey("studentProjectUuid");
 
-	/**
-	 * Given an email and a user UUID, checks to see if the given UUID
-	 * corresponds to a null user, and reassociates it with the User from the
-	 * email if so. This rematches all StudentProjects associated with the old
-	 * user UUID with the new one if necessary.
-	 * 
-	 * @return The page indicating success or failure for the confirmation.
-	 */
-	public WOActionResults confirmUuidAction() {
-		EOEditingContext ec = session().defaultEditingContext();
-		WORequest request = request();
+        UuidForUser uuidForUser = UuidForUser.uniqueObjectMatchingQualifier(
+            ec, UuidForUser.uuid.is(userUuid));
+        if (uuidForUser == null)
+        {
+            return response("No user found for that UUID.");
+        }
+        User user = uuidForUser.user();
 
-		// Get parameters.
-		String email = request.stringFormValueForKey("email");
-		String userUuid = request.stringFormValueForKey("userUuid");
+        Submission latestSubmission = Submission.firstObjectMatchingQualifier(
+            ec, Submission.user.is(user), Submission.submitTime.descs());
+        if (latestSubmission == null)
+        {
+            return response("No submissions found for that user.");
+        }
+        AssignmentOffering offering = latestSubmission.assignmentOffering();
 
-		UuidForUser oldUuidForUser = UuidForUser.uniqueObjectMatchingQualifier(
-				ec, UuidForUser.uuid.is(userUuid));
-		if (oldUuidForUser == null) {
-			SimpleMessageResponse page = pageWithName(SimpleMessageResponse.class);
-			page.message = "No UuidForUser found for that UUID.";
-			return page;
-		}
-		if (oldUuidForUser.user() == null) {
-			User user = User.uniqueObjectMatchingQualifier(ec,
-					User.email.is(email));
-			if (user == null) {
-				SimpleMessageResponse page = pageWithName(SimpleMessageResponse.class);
-				page.message = "No user found for that email.";
-				return page;
-			}
-			UuidForUser uuidForConfirmedUser = UuidForUser
-					.uniqueObjectMatchingQualifier(ec,
-							UuidForUser.user.is(user));
-			// If there is another UUID for this user that has been used, we
-			// need to pull all student projects to that UuidForUser, and
-			// delete the old UUID (which had no user associated with it).
-			if (uuidForConfirmedUser != null
-					&& !uuidForConfirmedUser.equals(oldUuidForUser)) {
-				NSArray<StudentProject> projects = StudentProject
-						.objectsMatchingQualifier(ec,
-								StudentProject.studentUuids.is(oldUuidForUser));
-				for (StudentProject p : projects) {
-					p.removeFromStudentUuidsRelationship(oldUuidForUser);
-					oldUuidForUser.delete();
-					p.addToStudentUuidsRelationship(uuidForConfirmedUser);
-				}
-				ec.saveChanges();
+        StudentProject project = StudentProject.uniqueObjectMatchingQualifier(
+            ec, StudentProject.uuid.is(studentProjectUuid));
+        if (project == null)
+        {
+            return response("No StudentProject found for that UUID.");
+        }
+        // If there is a PFA associated with this StudentProject that matches
+        // the
+        // given User and AssignmentOffering, we don't need to create one.
+        NSArray<ProjectForAssignment> pfas = project.projectsForAssignment();
+        for (ProjectForAssignment p : pfas)
+        {
+            if (p.students().contains(user)
+                && p.assignmentOffering().equals(offering))
+            {
+                return response("StudentProject already part of the correct "
+                    + "ProjectForAssignment.");
+            }
+        }
+        // Otherwise, create a new PFA.
+        ProjectForAssignment pfa = ProjectForAssignment.create(ec, offering);
+        pfa.addToStudentsRelationship(user);
+        pfa.addToStudentProjectsRelationship(project);
+        pfa.setStart(offering.availableFrom());
+        pfa.setEnd(offering.lateDeadline());
 
-				RetrieveUserResponse page = pageWithName(RetrieveUserResponse.class);
-				page.uuid = uuidForConfirmedUser.uuid();
-				return page;
-			}
-			// If the user with the given email does not have an associated
-			// UUID, we
-			// need to create one and return it.
-			else if (uuidForConfirmedUser == null) {
-				UuidForUser newUuidForUser = UuidForUser.create(ec, UUID
-						.randomUUID().toString());
-				newUuidForUser.setUserRelationship(user);
-				ec.saveChanges();
+        ec.saveChanges();
+        return response("ProjectForAssignment created successfully.");
+    }
 
-				RetrieveUserResponse page = pageWithName(RetrieveUserResponse.class);
-				page.uuid = newUuidForUser.uuid();
-				return page;
-			}
-			// We should never get here, as it's the same case as the else
-			// below.
-			SimpleMessageResponse page = pageWithName(SimpleMessageResponse.class);
-			page.message = "This UUID is already associated with a user.";
-			return page;
-		} else {
-			SimpleMessageResponse page = pageWithName(SimpleMessageResponse.class);
-			page.message = "This UUID is already associated with a user.";
-			return page;
-		}
-	}
 
-	/**
-	 * Given a projectUri, user UUID, and assignmentName that a user has
-	 * downloaded, create the StudentProject and associate it with a
-	 * ProjectForAssignment for the appropriate assignment.
-	 * 
-	 * @return The page with the studentProject UUID generated, or a failure
-	 *         message.
-	 */
-	public WOActionResults projectDownloadAction() {
-		EOEditingContext ec = session().defaultEditingContext();
-		WORequest request = request();
+    // ----------------------------------------------------------
+    /**
+     * Given an email and a user UUID, checks to see if the given UUID
+     * corresponds to a null user, and reassociates it with the User from the
+     * email if so. This rematches all StudentProjects associated with the old
+     * user UUID with the new one if necessary.
+     *
+     * @return The page indicating success or failure for the confirmation.
+     */
+    public WOActionResults confirmUuidAction()
+    {
+        log.debug("confirmUuidAction()");
+        EOEditingContext ec = session().defaultEditingContext();
+        WORequest request = request();
 
-		// Get parameters
-		String projectUri = request.stringFormValueForKey("projectUri");
-		String userUuid = request.stringFormValueForKey("userUuid");
-		String assignmentName = request.stringFormValueForKey("assignmentName");
+        // Get parameters.
+        String email = request.stringFormValueForKey("email");
+        String userUuid = request.stringFormValueForKey("userUuid");
 
-		UuidForUser uuidForUser = UuidForUser.uniqueObjectMatchingQualifier(ec,
-				UuidForUser.uuid.is(userUuid));
-		if (uuidForUser == null) {
-			SimpleMessageResponse page = pageWithName(SimpleMessageResponse.class);
-			page.message = "No UuidForUser found for that Uuid.";
-			return page;
-		}
-		User user = uuidForUser.user();
-		if (user == null) {
-			SimpleMessageResponse page = pageWithName(SimpleMessageResponse.class);
-			page.message = "No user found for that UUID.";
-			return page;
-		}
+        UuidForUser oldUuidForUser = UuidForUser.uniqueObjectMatchingQualifier(
+            ec, UuidForUser.uuid.is(userUuid));
+        if (oldUuidForUser == null)
+        {
+            return response("No UuidForUser found for that UUID.");
+        }
+        if (oldUuidForUser.user() == null)
+        {
+            User user = User.uniqueObjectMatchingQualifier(
+                ec, User.email.is(email));
+            if (user == null)
+            {
+                return response("No user found for that email.");
+            }
+            UuidForUser uuidForConfirmedUser = UuidForUser.
+                uniqueObjectMatchingQualifier(ec, UuidForUser.user.is(user));
+            // If there is another UUID for this user that has been used, we
+            // need to pull all student projects to that UuidForUser, and
+            // delete the old UUID (which had no user associated with it).
+            if (uuidForConfirmedUser != null
+                && !uuidForConfirmedUser.equals(oldUuidForUser))
+            {
+                NSArray<StudentProject> projects = StudentProject.
+                    objectsMatchingQualifier(ec,
+                        StudentProject.studentUuids.is(oldUuidForUser));
+                for (StudentProject p : projects)
+                {
+                    p.removeFromStudentUuidsRelationship(oldUuidForUser);
+                    oldUuidForUser.delete();
+                    p.addToStudentUuidsRelationship(uuidForConfirmedUser);
+                }
+                ec.saveChanges();
 
-		Assignment assignment = Assignment.uniqueObjectMatchingQualifier(ec,
-				Assignment.name.is(assignmentName));
-		if (assignment == null) {
-			SimpleMessageResponse page = pageWithName(SimpleMessageResponse.class);
-			page.message = "No Assignment found for that name.";
-			return page;
-		}
-		AssignmentOffering offering = assignment.offeringForUser(user);
+                RetrieveUserResponse page =
+                    pageWithName(RetrieveUserResponse.class);
+                page.uuid = uuidForConfirmedUser.uuid();
+                return page;
+            }
+            // If the user with the given email does not have an associated
+            // UUID, we
+            // need to create one and return it.
+            else if (uuidForConfirmedUser == null)
+            {
+                UuidForUser newUuidForUser = UuidForUser.create(
+                    ec, UUID.randomUUID().toString());
+                newUuidForUser.setUserRelationship(user);
+                ec.saveChanges();
 
-		if (offering == null) {
-			SimpleMessageResponse page = pageWithName(SimpleMessageResponse.class);
-			page.message = "No AssignmentOffering found for that user and assignment name.";
-			return page;
-		}
+                RetrieveUserResponse page =
+                    pageWithName(RetrieveUserResponse.class);
+                page.uuid = newUuidForUser.uuid();
+                return page;
+            }
+            // We should never get here, as it's the same case as the else
+            // below.
+            return response("This UUID is already associated with a user.");
+        } else {
+            return response("This UUID is already associated with a user.");
+        }
+    }
 
-		StudentProject studentProject = StudentProject
-				.uniqueObjectMatchingQualifier(ec, StudentProject.studentUuids
-						.is(uuidForUser).and(StudentProject.uri.is(projectUri)));
-		if (studentProject == null) {
-			studentProject = StudentProject.create(ec);
-			studentProject.setUri(projectUri);
-			studentProject.setUuid(UUID.randomUUID().toString());
-			studentProject.addToStudentUuidsRelationship(uuidForUser);
-		} else {
-			NSArray<ProjectForAssignment> pfas = studentProject
-					.projectsForAssignment();
-			for (ProjectForAssignment p : pfas) {
-				if (p.students().contains(user)
-						&& p.assignmentOffering().equals(offering)) {
-					SimpleMessageResponse page = pageWithName(SimpleMessageResponse.class);
-					page.message = "StudentProject already part of the correct ProjectForAssignment.";
-					return page;
-				}
-			}
-		}
 
-		// Otherwise, create a new PFA.
-		ProjectForAssignment pfa = ProjectForAssignment.create(ec, offering);
-		pfa.addToStudentsRelationship(user);
-		pfa.addToStudentProjectsRelationship(studentProject);
-		pfa.setStart(offering.availableFrom());
-		pfa.setEnd(offering.lateDeadline());
+    // ----------------------------------------------------------
+    /**
+     * Given a projectUri, user UUID, and assignmentName that a user has
+     * downloaded, create the StudentProject and associate it with a
+     * ProjectForAssignment for the appropriate assignment.
+     *
+     * @return The page with the studentProject UUID generated, or a failure
+     *         message.
+     */
+    public WOActionResults projectDownloadAction()
+    {
+        log.debug("projectDownloadAction()");
+        EOEditingContext ec = session().defaultEditingContext();
+        WORequest request = request();
 
-		ec.saveChanges();
-		SimpleMessageResponse page = pageWithName(SimpleMessageResponse.class);
-		page.message = "Starter project stored in database.";
-		return page;
-	}
+        // Get parameters
+        String projectUri = request.stringFormValueForKey("projectUri");
+        String userUuid = request.stringFormValueForKey("userUuid");
+        String assignmentName =
+            request.stringFormValueForKey("assignmentName");
 
-	/**
-	 * Given parameters for an exception that occurred in the plugin, record
-	 * those parameters for future debugging.
-	 * 
-	 * @return The page indicating success.
-	 */
-	public WOActionResults pluginExceptionHappenedAction() {
-		EOEditingContext ec = session().defaultEditingContext();
-		WORequest request = request();
+        UuidForUser uuidForUser = UuidForUser.uniqueObjectMatchingQualifier(
+            ec, UuidForUser.uuid.is(userUuid));
+        if (uuidForUser == null)
+        {
+            return response("No UuidForUser found for that Uuid.");
+        }
+        User user = uuidForUser.user();
+        if (user == null)
+        {
+            return response("No user found for that UUID.");
+        }
 
-		// Get parameters
-		String userUuid = request.stringFormValueForKey("userUuid");
-		String exceptionClass = request.stringFormValueForKey("exceptionClass");
-		String exceptionMessage = request
-				.stringFormValueForKey("exceptionMessage");
-		String className = request.stringFormValueForKey("className");
-		String methodName = request.stringFormValueForKey("methodName");
-		String fileName = request.stringFormValueForKey("fileName");
-		String lineNumber = request.stringFormValueForKey("lineNumber");
-		String stackTrace = request.stringFormValueForKey("stackTrace");
+        Assignment assignment = Assignment.uniqueObjectMatchingQualifier(
+            ec, Assignment.name.is(assignmentName));
+        if (assignment == null)
+        {
+            return response("No Assignment found for that name.");
+        }
+        AssignmentOffering offering = assignment.offeringForUser(user);
 
-		UuidForUser uuidForUser = UuidForUser.uniqueObjectMatchingQualifier(ec,
-				UuidForUser.uuid.is(userUuid));
+        if (offering == null)
+        {
+            return response("No AssignmentOffering found for that user "
+                + "and assignment name.");
+        }
 
-		PluginError error = PluginError.create(ec);
-		if (exceptionClass != null)
-			error.setExceptionClass(exceptionClass);
-		if (exceptionMessage != null)
-			error.setExceptionMessage(exceptionMessage);
-		if (className != null)
-			error.setClassName(className);
-		if (methodName != null)
-			error.setMethodName(methodName);
-		if (fileName != null)
-			error.setFileName(fileName);
-		if (lineNumber != null)
-			error.setLineNumber(Integer.parseInt(lineNumber));
-		if (stackTrace != null)
-			error.setStackTrace(stackTrace);
-		error.setUuidForUserRelationship(uuidForUser);
+        StudentProject studentProject = StudentProject.
+            uniqueObjectMatchingQualifier(
+                ec,
+                StudentProject.studentUuids.is(uuidForUser).
+                and(StudentProject.uri.is(projectUri)));
+        if (studentProject == null)
+        {
+            studentProject = StudentProject.create(ec);
+            studentProject.setUri(projectUri);
+            studentProject.setUuid(UUID.randomUUID().toString());
+            studentProject.addToStudentUuidsRelationship(uuidForUser);
+        }
+        else
+        {
+            NSArray<ProjectForAssignment> pfas =
+                studentProject.projectsForAssignment();
+            for (ProjectForAssignment p : pfas)
+            {
+                if (p.students().contains(user)
+                    && p.assignmentOffering().equals(offering))
+                {
+                    return response("StudentProject already part of the "
+                        + "correct ProjectForAssignment.");
+                }
+            }
+        }
 
-		ec.saveChanges();
-		SimpleMessageResponse page = pageWithName(SimpleMessageResponse.class);
-		page.message = "PluginError stored in database.";
-		return page;
-	}
+        // Otherwise, create a new PFA.
+        ProjectForAssignment pfa = ProjectForAssignment.create(ec, offering);
+        pfa.addToStudentsRelationship(user);
+        pfa.addToStudentProjectsRelationship(studentProject);
+        pfa.setStart(offering.availableFrom());
+        pfa.setEnd(offering.lateDeadline());
+
+        ec.saveChanges();
+        return response("Starter project stored in database.");
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Given parameters for an exception that occurred in the plugin, record
+     * those parameters for future debugging.
+     *
+     * @return The page indicating success.
+     */
+    public WOActionResults pluginExceptionHappenedAction()
+    {
+        log.debug("pluginExceptionHappenedAction()");
+        EOEditingContext ec = session().defaultEditingContext();
+        WORequest request = request();
+
+        // Get parameters
+        String userUuid = request.stringFormValueForKey("userUuid");
+        String exceptionClass =
+            request.stringFormValueForKey("exceptionClass");
+        String exceptionMessage =
+            request.stringFormValueForKey("exceptionMessage");
+        String className = request.stringFormValueForKey("className");
+        String methodName = request.stringFormValueForKey("methodName");
+        String fileName = request.stringFormValueForKey("fileName");
+        String lineNumber = request.stringFormValueForKey("lineNumber");
+        String stackTrace = request.stringFormValueForKey("stackTrace");
+
+        UuidForUser uuidForUser = UuidForUser.uniqueObjectMatchingQualifier(
+            ec, UuidForUser.uuid.is(userUuid));
+
+        PluginError error = PluginError.create(ec);
+        if (exceptionClass != null)
+        {
+            error.setExceptionClass(exceptionClass);
+        }
+        if (exceptionMessage != null)
+        {
+            error.setExceptionMessage(exceptionMessage);
+        }
+        if (className != null)
+        {
+            error.setClassName(className);
+        }
+        if (methodName != null)
+        {
+            error.setMethodName(methodName);
+        }
+        if (fileName != null)
+        {
+            error.setFileName(fileName);
+        }
+        if (lineNumber != null)
+        {
+            error.setLineNumber(Integer.parseInt(lineNumber));
+        }
+        if (stackTrace != null)
+        {
+            error.setStackTrace(stackTrace);
+        }
+        error.setUuidForUserRelationship(uuidForUser);
+
+        ec.saveChanges();
+        return response("PluginError stored in database.");
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Given parameters for an exception that occurred in the plugin, record
+     * those parameters for future debugging.
+     *
+     * @return The page indicating success.
+     */
+    private SimpleMessageResponse response(String message)
+    {
+        SimpleMessageResponse page =
+            pageWithName(SimpleMessageResponse.class);
+        page.message = message;
+        return page;
+    }
+
+
+    //~ Instance/static variables .............................................
+
+    static Logger log = Logger.getLogger(event.class);
 }

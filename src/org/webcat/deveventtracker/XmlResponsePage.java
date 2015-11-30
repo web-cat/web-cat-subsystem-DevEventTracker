@@ -1,7 +1,7 @@
 /*==========================================================================*\
  |  $Id$
  |*-------------------------------------------------------------------------*|
- |  Copyright (C) 2006-2008 Virginia Tech
+ |  Copyright (C) 2015 Virginia Tech
  |
  |  This file is part of Web-CAT.
  |
@@ -22,14 +22,16 @@
 package org.webcat.deveventtracker;
 
 import com.webobjects.appserver.WOContext;
+import com.webobjects.appserver.WOResponse;
 import er.extensions.components.ERXComponent;
+import org.apache.log4j.Logger;
 import org.webcat.core.Application;
 import org.webcat.core.Session;
 
 //-------------------------------------------------------------------------
 /**
  * Copied from Web-Cat/WebAPI
- * 
+ *
  * A common base class for all of the XML response pages in this subsystem.
  *
  * @author  Stephen Edwards
@@ -54,6 +56,25 @@ public class XmlResponsePage
 
 
     //~ Methods ...............................................................
+
+    // ----------------------------------------------------------
+    @Override
+    public void appendToResponse(WOResponse response, WOContext context)
+    {
+        super.appendToResponse(response, context);
+        if (log.isDebugEnabled())
+        {
+            log.debug(description());
+        }
+    }
+
+
+    // ----------------------------------------------------------
+    public String description()
+    {
+        return this.getClass().getSimpleName();
+    }
+
 
     // ----------------------------------------------------------
     /**
@@ -81,4 +102,9 @@ public class XmlResponsePage
     {
         return (Application)super.application();
     }
+
+
+    //~ Instance/static variables .............................................
+
+    static Logger log = Logger.getLogger(XmlResponsePage.class);
 }

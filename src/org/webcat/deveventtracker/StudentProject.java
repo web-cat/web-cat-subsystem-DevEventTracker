@@ -1,7 +1,7 @@
 /*==========================================================================*\
  |  $Id$
  |*-------------------------------------------------------------------------*|
- |  Copyright (C) 2012 Virginia Tech
+ |  Copyright (C) 2015 Virginia Tech
  |
  |  This file is part of Web-CAT.
  |
@@ -38,94 +38,120 @@ import com.webobjects.foundation.NSArray;
 // -------------------------------------------------------------------------
 /**
  * TODO: place a real description here.
- * 
+ *
  * @author
  * @author Last changed by: $Author$
  * @version $Revision$, $Date$
  */
-public class StudentProject extends _StudentProject implements
-		RepositoryProvider {
-	// ~ Constructors ..........................................................
+public class StudentProject
+    extends _StudentProject
+    implements RepositoryProvider
+{
+    // ~ Constructors ..........................................................
 
-	// ----------------------------------------------------------
-	/**
-	 * Creates a new StudentProject object.
-	 */
-	public StudentProject() {
-		super();
-	}
+    // ----------------------------------------------------------
+    /**
+     * Creates a new StudentProject object.
+     */
+    public StudentProject() {
+        super();
+    }
 
-	// ~ Methods ...............................................................
+    // ~ Methods ...............................................................
 
-	public void initializeRepositoryContents(File file) throws IOException {
-		// Not using a readme file for now as it requires an extra pull before
-		// push works.
-		/*
-		 * File readme = new File(file, "/readme.txt"); readme.createNewFile();
-		 * FileWriter fw = new FileWriter(readme); BufferedWriter out = new
-		 * BufferedWriter(fw); out.write(
-		 * "This repository is used for storing student code snapshots as they work. There is one repository per Eclipse project they work on"
-		 * ); out.flush(); out.close();
-		 */
-		File readme = new File(file, "readme.txt");
-		readme.delete();
-	}
+    // ----------------------------------------------------------
+    public void initializeRepositoryContents(File file)
+        throws IOException
+    {
+        // Not using a readme file for now as it requires an extra pull before
+        // push works.
+        /*
+         * File readme = new File(file, "/readme.txt"); readme.createNewFile();
+         * FileWriter fw = new FileWriter(readme); BufferedWriter out = new
+         * BufferedWriter(fw); out.write(
+         * "This repository is used for storing student code snapshots as they work. There is one repository per Eclipse project they work on"
+         * ); out.flush(); out.close();
+         */
+        File readme = new File(file, "readme.txt");
+        readme.delete();
+    }
 
-	public boolean userCanAccessRepository(User user) {
-		return this.accessibleByUser(user);
-	}
 
-	public boolean accessibleByUser(User user) {
-		// Check if user is listed as a student for this project.
-		NSArray<UuidForUser> uuidsForUser = this.studentUuids();
-		for (UuidForUser uuid : uuidsForUser)
-		{
-			if (uuid.user().equals(user))
-			{
-				return true;
-			}
-		}
-		// Check if user is staff for an assignment associated with this project.
-		NSArray<ProjectForAssignment> projectsForAssignment = this.projectsForAssignment();
-		for (ProjectForAssignment project : projectsForAssignment)
-		{
-			if(user.staffFor().contains(project.assignmentOffering().courseOffering()))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
+    // ----------------------------------------------------------
+    public boolean userCanAccessRepository(User user)
+    {
+        return this.accessibleByUser(user);
+    }
 
-	public String apiId() {
-		return this.uuid();
-	}
 
-	public static StudentProject findObjectWithApiId(EOEditingContext ec,
-			String apiId) throws MoreThanOneException {
-		return StudentProject.uniqueObjectMatchingQualifier(ec,
-				StudentProject.uuid.is(apiId));
-	}
+    // ----------------------------------------------------------
+    public boolean accessibleByUser(User user)
+    {
+        // Check if user is listed as a student for this project.
+        NSArray<UuidForUser> uuidsForUser = this.studentUuids();
+        for (UuidForUser uuid : uuidsForUser)
+        {
+            if (uuid.user().equals(user))
+            {
+                return true;
+            }
+        }
+        // Check if user is staff for an assignment associated with this project.
+        NSArray<ProjectForAssignment> projectsForAssignment = this.projectsForAssignment();
+        for (ProjectForAssignment project : projectsForAssignment)
+        {
+            if(user.staffFor().contains(project.assignmentOffering().courseOffering()))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
-	public static NSArray<User> repositoriesPresentedToUser(User user,
-			EOEditingContext ec) {
-		return NSArray.<User> emptyArray();
-	}
 
-	
-	public User authorizedUserForRepository(EOEditingContext ec, String altUsername,
-			String altPassword) {
-		if (this.uuid().equals(altPassword)) {
-			UuidForUser uuidForUser = UuidForUser
-					.uniqueObjectMatchingQualifier(ec,
-							UuidForUser.uuid.is(altUsername));
-			if (uuidForUser != null) {
-				User user = uuidForUser.user();
-				if (this.userCanAccessRepository(user)) {
-					return user;
-				}
-			}
-		}
-		return null;
-	}
+    // ----------------------------------------------------------
+    public String apiId()
+    {
+        return this.uuid();
+    }
+
+
+    // ----------------------------------------------------------
+    public static StudentProject findObjectWithApiId(
+        EOEditingContext ec, String apiId)
+        throws MoreThanOneException
+    {
+        return StudentProject.uniqueObjectMatchingQualifier(
+            ec, StudentProject.uuid.is(apiId));
+    }
+
+
+    // ----------------------------------------------------------
+    public static NSArray<User> repositoriesPresentedToUser(
+        User user, EOEditingContext ec)
+    {
+        return NSArray.<User> emptyArray();
+    }
+
+
+    // ----------------------------------------------------------
+    public User authorizedUserForRepository(
+        EOEditingContext ec, String altUsername, String altPassword)
+    {
+        if (this.uuid().equals(altPassword))
+        {
+            UuidForUser uuidForUser = UuidForUser
+                .uniqueObjectMatchingQualifier(
+                    ec, UuidForUser.uuid.is(altUsername));
+            if (uuidForUser != null)
+            {
+                User user = uuidForUser.user();
+                if (this.userCanAccessRepository(user))
+                {
+                    return user;
+                }
+            }
+        }
+        return null;
+    }
 }

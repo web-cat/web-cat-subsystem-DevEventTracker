@@ -27,10 +27,8 @@ package org.webcat.deveventtracker;
 import com.webobjects.eoaccess.*;
 import com.webobjects.eocontrol.*;
 import com.webobjects.foundation.*;
-
 import er.extensions.eof.ERXEOControlUtilities;
 import er.extensions.eof.ERXKey;
-
 import org.apache.log4j.Logger;
 import org.webcat.core.EOBasedKeyGenerator;
 import org.webcat.woextensions.WCFetchSpecification;
@@ -158,7 +156,6 @@ public abstract class _StudentProject
     public static final ERXKey<org.webcat.deveventtracker.UuidForUser> studentUuids =
         new ERXKey<org.webcat.deveventtracker.UuidForUser>(STUDENT_UUIDS_KEY);
     // Fetch specifications ---
-    public static final String FOR_USER_UUID_FSPEC = "forUserUuid";
     public static final String ENTITY_NAME = "StudentProject";
 
     public transient final EOBasedKeyGenerator generateKey =
@@ -279,7 +276,8 @@ public abstract class _StudentProject
     @SuppressWarnings("unchecked")
     public NSArray<org.webcat.deveventtracker.ProjectForAssignment> projectsForAssignment()
     {
-        return (NSArray)storedValueForKey( "projectsForAssignment" );
+        return (NSArray<org.webcat.deveventtracker.ProjectForAssignment>)
+            storedValueForKey("projectsForAssignment");
     }
 
 
@@ -290,14 +288,15 @@ public abstract class _StudentProject
      *
      * @param value The new set of entities to relate to
      */
-    public void setProjectsForAssignment( NSMutableArray<org.webcat.deveventtracker.ProjectForAssignment>  value )
+    public void setProjectsForAssignment(
+        NSMutableArray<org.webcat.deveventtracker.ProjectForAssignment>  value)
     {
         if (log.isDebugEnabled())
         {
-            log.debug( "setProjectsForAssignment("
-                + value + "): was " + projectsForAssignment() );
+            log.debug("setProjectsForAssignment("
+                + value + "): was " + projectsForAssignment());
         }
-        takeStoredValueForKey( value, "projectsForAssignment" );
+        takeStoredValueForKey(value, "projectsForAssignment");
     }
 
 
@@ -457,7 +456,8 @@ public abstract class _StudentProject
     @SuppressWarnings("unchecked")
     public NSArray<org.webcat.deveventtracker.SensorData> sensorData()
     {
-        return (NSArray)storedValueForKey( "sensorData" );
+        return (NSArray<org.webcat.deveventtracker.SensorData>)
+            storedValueForKey("sensorData");
     }
 
 
@@ -468,14 +468,15 @@ public abstract class _StudentProject
      *
      * @param value The new set of entities to relate to
      */
-    public void setSensorData( NSMutableArray<org.webcat.deveventtracker.SensorData>  value )
+    public void setSensorData(
+        NSMutableArray<org.webcat.deveventtracker.SensorData>  value)
     {
         if (log.isDebugEnabled())
         {
-            log.debug( "setSensorData("
-                + value + "): was " + sensorData() );
+            log.debug("setSensorData("
+                + value + "): was " + sensorData());
         }
-        takeStoredValueForKey( value, "sensorData" );
+        takeStoredValueForKey(value, "sensorData");
     }
 
 
@@ -635,7 +636,8 @@ public abstract class _StudentProject
     @SuppressWarnings("unchecked")
     public NSArray<org.webcat.deveventtracker.UuidForUser> studentUuids()
     {
-        return (NSArray)storedValueForKey( "studentUuids" );
+        return (NSArray<org.webcat.deveventtracker.UuidForUser>)
+            storedValueForKey("studentUuids");
     }
 
 
@@ -646,14 +648,15 @@ public abstract class _StudentProject
      *
      * @param value The new set of entities to relate to
      */
-    public void setStudentUuids( NSMutableArray<org.webcat.deveventtracker.UuidForUser>  value )
+    public void setStudentUuids(
+        NSMutableArray<org.webcat.deveventtracker.UuidForUser>  value)
     {
         if (log.isDebugEnabled())
         {
-            log.debug( "setStudentUuids("
-                + value + "): was " + studentUuids() );
+            log.debug("setStudentUuids("
+                + value + "): was " + studentUuids());
         }
-        takeStoredValueForKey( value, "studentUuids" );
+        takeStoredValueForKey(value, "studentUuids");
     }
 
 
@@ -869,8 +872,8 @@ public abstract class _StudentProject
         EOQualifier qualifier,
         NSArray<EOSortOrdering> sortOrderings)
     {
-        @SuppressWarnings("unchecked")
-        EOFetchSpecification fspec = new WCFetchSpecification(
+        WCFetchSpecification<StudentProject> fspec =
+            new WCFetchSpecification<StudentProject>(
                 ENTITY_NAME, qualifier, sortOrderings);
         fspec.setUsesDistinct(true);
         return objectsWithFetchSpecification(context, fspec);
@@ -893,8 +896,13 @@ public abstract class _StudentProject
         EOQualifier qualifier,
         NSArray<EOSortOrdering> sortOrderings)
     {
+        WCFetchSpecification<StudentProject> fspec =
+            new WCFetchSpecification<StudentProject>(
+                ENTITY_NAME, qualifier, sortOrderings);
+        fspec.setUsesDistinct(true);
+        fspec.setFetchLimit(1);
         NSArray<StudentProject> objects =
-            objectsMatchingQualifier(context, qualifier, sortOrderings);
+            objectsWithFetchSpecification(context, fspec);
         return (objects.size() > 0)
             ? objects.get(0)
             : null;
@@ -986,7 +994,7 @@ public abstract class _StudentProject
                     + java.util.Arrays.toString(keysAndValues));
             }
 
-            valueDictionary.setObjectForKey(value, (String) key);
+            valueDictionary.setObjectForKey(value, (String)key);
         }
 
         return objectsMatchingValues(context, valueDictionary);
@@ -1058,7 +1066,7 @@ public abstract class _StudentProject
                     + java.util.Arrays.toString(keysAndValues));
             }
 
-            valueDictionary.setObjectForKey(value, (String) key);
+            valueDictionary.setObjectForKey(value, (String)key);
         }
 
         return firstObjectMatchingValues(
@@ -1082,8 +1090,8 @@ public abstract class _StudentProject
         NSArray<EOSortOrdering> sortOrderings,
         NSDictionary<String, Object> keysAndValues)
     {
-        @SuppressWarnings("unchecked")
-        EOFetchSpecification fspec = new WCFetchSpecification(
+        WCFetchSpecification<StudentProject> fspec =
+            new WCFetchSpecification<StudentProject>(
                 ENTITY_NAME,
                 EOQualifier.qualifierToMatchAllValues(keysAndValues),
                 sortOrderings);
@@ -1149,7 +1157,7 @@ public abstract class _StudentProject
                     + java.util.Arrays.toString(keysAndValues));
             }
 
-            valueDictionary.setObjectForKey(value, (String) key);
+            valueDictionary.setObjectForKey(value, (String)key);
         }
 
         return uniqueObjectMatchingValues(context, valueDictionary);
@@ -1259,7 +1267,7 @@ public abstract class _StudentProject
                     + java.util.Arrays.toString(keysAndValues));
             }
 
-            valueDictionary.setObjectForKey(value, (String) key);
+            valueDictionary.setObjectForKey(value, (String)key);
         }
 
         return countOfObjectsMatchingValues(context, valueDictionary);
@@ -1282,52 +1290,6 @@ public abstract class _StudentProject
     {
         return countOfObjectsMatchingQualifier(context,
                 EOQualifier.qualifierToMatchAllValues(keysAndValues));
-    }
-
-
-    // ----------------------------------------------------------
-    /**
-     * Retrieve objects according to the <code>forUserUuid</code>
-     * fetch specification.
-     *
-     * @param context The editing context to use
-     * @param uriBinding fetch spec parameter
-     * @param uuidBinding fetch spec parameter
-     * @return an NSArray of the entities retrieved
-     */
-    public static NSArray<StudentProject> forUserUuid(
-            EOEditingContext context,
-            String uriBinding,
-            org.webcat.deveventtracker.UuidForUser uuidBinding)
-    {
-        EOFetchSpecification spec = WCFetchSpecification
-            .fetchSpecificationNamed("forUserUuid", "StudentProject");
-
-        NSMutableDictionary<String, Object> bindings =
-            new NSMutableDictionary<String, Object>();
-
-        if (uriBinding != null)
-        {
-            bindings.setObjectForKey(uriBinding,
-                                     "uri");
-        }
-        if (uuidBinding != null)
-        {
-            bindings.setObjectForKey(uuidBinding,
-                                     "uuid");
-        }
-        spec = spec.fetchSpecificationWithQualifierBindings(bindings);
-
-        NSArray<StudentProject> objects =
-            objectsWithFetchSpecification(context, spec);
-        if (log.isDebugEnabled())
-        {
-            log.debug("forUserUuid(ec"
-                + ", " + uriBinding
-                + ", " + uuidBinding
-                + "): " + objects);
-        }
-        return objects;
     }
 
 

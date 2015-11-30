@@ -1,7 +1,7 @@
 /*==========================================================================*\
  |  $Id$
  |*-------------------------------------------------------------------------*|
- |  Copyright (C) 2014 Virginia Tech
+ |  Copyright (C) 2015 Virginia Tech
  |
  |  This file is part of Web-CAT.
  |
@@ -44,14 +44,5 @@ public class DevEventTracker
     public DevEventTracker()
     {
         super();
-    }
-
-    @Override
-    public Class<? extends org.webcat.dbupdate.UpdateSet> databaseUpdaterClass()
-    {
-        Class<? extends org.webcat.dbupdate.UpdateSet> result =
-            super.databaseUpdaterClass();
-        System.out.println("database update class = " + result);
-        return result;
     }
 }

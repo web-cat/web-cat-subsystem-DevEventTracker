@@ -1,7 +1,7 @@
 /*==========================================================================*\
  |  $Id$
  |*-------------------------------------------------------------------------*|
- |  Copyright (C) 2006-2008 Virginia Tech
+ |  Copyright (C) 2015 Virginia Tech
  |
  |  This file is part of Web-CAT.
  |
@@ -26,7 +26,7 @@ import com.webobjects.appserver.WOContext;
 //-------------------------------------------------------------------------
 /**
  * Copied from Web-Cat/WebAPI
- * 
+ *
  * The basic message page for returning single message responses.  The
  * default is an "invalid request" message.
  *
@@ -55,4 +55,14 @@ extends XmlResponsePage
 
     public String message = "Invalid request";
     public String elementName = "error";
+
+
+    //~ Methods ...............................................................
+
+    // ----------------------------------------------------------
+    @Override
+    public String description()
+    {
+        return super.description() + "(" + elementName + "): " + message;
+    }
 }

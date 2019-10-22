@@ -64,16 +64,19 @@ public abstract class _PluginError
      * attributes and relationships.
      * @param editingContext The context in which the new object will be
      * inserted
+     * @param occurrencesValue
      * @return The newly created object
      */
     public static PluginError create(
-        EOEditingContext editingContext
+        EOEditingContext editingContext,
+        int occurrencesValue
         )
     {
         PluginError eoObject = (PluginError)
             EOUtilities.createAndInsertInstance(
                 editingContext,
                 _PluginError.ENTITY_NAME);
+        eoObject.setOccurrences(occurrencesValue);
         return eoObject;
     }
 
@@ -156,6 +159,12 @@ public abstract class _PluginError
     public static final String METHOD_NAME_KEY = "methodName";
     public static final ERXKey<String> methodName =
         new ERXKey<String>(METHOD_NAME_KEY);
+    public static final String MOST_RECENT_KEY = "mostRecent";
+    public static final ERXKey<NSTimestamp> mostRecent =
+        new ERXKey<NSTimestamp>(MOST_RECENT_KEY);
+    public static final String OCCURRENCES_KEY = "occurrences";
+    public static final ERXKey<Integer> occurrences =
+        new ERXKey<Integer>(OCCURRENCES_KEY);
     public static final String STACK_TRACE_KEY = "stackTrace";
     public static final ERXKey<String> stackTrace =
         new ERXKey<String>(STACK_TRACE_KEY);
@@ -389,6 +398,99 @@ public abstract class _PluginError
                 + value + "): was " + methodName() );
         }
         takeStoredValueForKey( value, "methodName" );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Retrieve this object's <code>mostRecent</code> value.
+     * @return the value of the attribute
+     */
+    public NSTimestamp mostRecent()
+    {
+        return (NSTimestamp)storedValueForKey( "mostRecent" );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Change the value of this object's <code>mostRecent</code>
+     * property.
+     *
+     * @param value The new value for this property
+     */
+    public void setMostRecent( NSTimestamp value )
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug( "setMostRecent("
+                + value + "): was " + mostRecent() );
+        }
+        takeStoredValueForKey( value, "mostRecent" );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Retrieve this object's <code>occurrences</code> value.
+     * @return the value of the attribute
+     */
+    public int occurrences()
+    {
+        Integer returnValue =
+            (Integer)storedValueForKey( "occurrences" );
+        return ( returnValue == null )
+            ? 0
+            : returnValue.intValue();
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Change the value of this object's <code>occurrences</code>
+     * property.
+     *
+     * @param value The new value for this property
+     */
+    public void setOccurrences( int value )
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug( "setOccurrences("
+                + value + "): was " + occurrences() );
+        }
+        Integer actual =
+            er.extensions.eof.ERXConstant.integerForInt( value );
+            setOccurrencesRaw( actual );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Retrieve this object's <code>occurrences</code> value.
+     * @return the value of the attribute
+     */
+    public Integer occurrencesRaw()
+    {
+        return (Integer)storedValueForKey( "occurrences" );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Change the value of this object's <code>occurrences</code>
+     * property.
+     *
+     * @param value The new value for this property
+     */
+    public void setOccurrencesRaw( Integer value )
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug( "setOccurrencesRaw("
+                + value + "): was " + occurrencesRaw() );
+        }
+        takeStoredValueForKey( value, "occurrences" );
     }
 
 

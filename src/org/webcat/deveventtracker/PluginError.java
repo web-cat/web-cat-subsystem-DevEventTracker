@@ -117,7 +117,7 @@ public class PluginError
                 UuidForUser.uniqueObjectMatchingQualifier(
                     ec, UuidForUser.uuid.is(userUuid));
 
-            PluginError error = PluginError.create(ec);
+            PluginError error = PluginError.create(ec, 1);
             if (exceptionClass != null)
             {
                 error.setExceptionClass(exceptionCls);

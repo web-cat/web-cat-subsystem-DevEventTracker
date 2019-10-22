@@ -171,6 +171,24 @@ public class DevEventTrackerDatabaseUpdates
     }
 
 
+    // ----------------------------------------------------------
+    /**
+     * Adds summary columns to the PluginError table.
+     *
+     * @throws SQLException on error
+     */
+    public void updateIncrement7()
+        throws SQLException
+    {
+        database().executeSQL(
+            "truncate table PluginError");
+        database().executeSQL(
+            "alter table PluginError add mostRecent DATETIME");
+        database().executeSQL(
+            "alter table PluginError add occurrences INTEGER NOT NULL");
+    }
+
+
     // ~ Private Methods .......................................................
 
     // ----------------------------------------------------------

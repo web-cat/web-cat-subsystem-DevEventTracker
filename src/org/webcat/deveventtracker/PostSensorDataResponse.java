@@ -1,5 +1,5 @@
 /*==========================================================================*\
- |  $Id$
+ |  $Id: PostSensorDataResponse.java,v 1.2 2015/11/30 15:45:36 stedwar2 Exp $
  |*-------------------------------------------------------------------------*|
  |  Copyright (C) 2015 Virginia Tech
  |
@@ -28,8 +28,8 @@ import com.webobjects.appserver.WOContext;
  * An XML response sent to acknowledge posting of sensor data.
  *
  * @author  Stephen Edwards
- * @author  Last changed by $Author$
- * @version $Revision$, $Date$
+ * @author  Last changed by $Author: stedwar2 $
+ * @version $Revision: 1.2 $, $Date: 2015/11/30 15:45:36 $
  */
 public class PostSensorDataResponse
     extends XmlResponsePage

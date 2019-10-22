@@ -1,5 +1,5 @@
 /*==========================================================================*\
- |  $Id$
+ |  $Id: StudentProject.java,v 1.7 2015/11/30 15:45:37 stedwar2 Exp $
  |*-------------------------------------------------------------------------*|
  |  Copyright (C) 2015 Virginia Tech
  |
@@ -21,16 +21,10 @@
 
 package org.webcat.deveventtracker;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-
-import org.webcat.core.RepositoryProvider;
+import org.webcat.core.RepositoryProviderWithAuthentication;
 import org.webcat.core.User;
-
-import com.webobjects.appserver.WORequest;
-import com.webobjects.eoaccess.EOUtilities;
 import com.webobjects.eoaccess.EOUtilities.MoreThanOneException;
 import com.webobjects.eocontrol.EOEditingContext;
 import com.webobjects.foundation.NSArray;
@@ -40,12 +34,12 @@ import com.webobjects.foundation.NSArray;
  * TODO: place a real description here.
  *
  * @author
- * @author Last changed by: $Author$
- * @version $Revision$, $Date$
+ * @author Last changed by: $Author: stedwar2 $
+ * @version $Revision: 1.7 $, $Date: 2015/11/30 15:45:37 $
  */
 public class StudentProject
     extends _StudentProject
-    implements RepositoryProvider
+    implements RepositoryProviderWithAuthentication
 {
     // ~ Constructors ..........................................................
 
@@ -53,7 +47,8 @@ public class StudentProject
     /**
      * Creates a new StudentProject object.
      */
-    public StudentProject() {
+    public StudentProject()
+    {
         super();
     }
 
@@ -97,15 +92,15 @@ public class StudentProject
             }
         }
         // Check if user is staff for an assignment associated with this project.
-        NSArray<ProjectForAssignment> projectsForAssignment = this.projectsForAssignment();
-        for (ProjectForAssignment project : projectsForAssignment)
+        NSArray<ProjectForAssignment> projects = this.projectsForAssignment();
+        for (ProjectForAssignment project : projects)
         {
-            if(user.staffFor().contains(project.assignmentOffering().courseOffering()))
+            if (project.assignmentOffering().courseOffering().isStaff(user))
             {
                 return true;
             }
         }
-        return false;
+        return user.hasAdminPrivileges();
     }
 
 
@@ -127,10 +122,10 @@ public class StudentProject
 
 
     // ----------------------------------------------------------
-    public static NSArray<User> repositoriesPresentedToUser(
+    public static NSArray<StudentProject> repositoriesPresentedToUser(
         User user, EOEditingContext ec)
     {
-        return NSArray.<User> emptyArray();
+        return NSArray.<StudentProject> emptyArray();
     }
 
 

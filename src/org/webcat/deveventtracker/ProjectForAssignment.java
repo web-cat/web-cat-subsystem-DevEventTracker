@@ -1,5 +1,5 @@
 /*==========================================================================*\
- |  $Id$
+ |  $Id: ProjectForAssignment.java,v 1.2 2015/11/30 15:45:37 stedwar2 Exp $
  |*-------------------------------------------------------------------------*|
  |  Copyright (C) 2015 Virginia Tech
  |
@@ -26,8 +26,8 @@ package org.webcat.deveventtracker;
  * TODO: place a real description here.
  *
  * @author
- * @author  Last changed by: $Author$
- * @version $Revision$, $Date$
+ * @author  Last changed by: $Author: stedwar2 $
+ * @version $Revision: 1.2 $, $Date: 2015/11/30 15:45:37 $
  */
 public class ProjectForAssignment
     extends _ProjectForAssignment

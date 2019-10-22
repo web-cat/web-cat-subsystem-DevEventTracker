@@ -1,5 +1,5 @@
 /*==========================================================================*\
- |  $Id$
+ |  $Id: UuidForUser.java,v 1.3 2015/11/30 15:45:37 stedwar2 Exp $
  |*-------------------------------------------------------------------------*|
  |  Copyright (C) 2015 Virginia Tech
  |
@@ -30,8 +30,8 @@ import com.webobjects.eocontrol.EOEditingContext;
  * TODO: place a real description here.
  *
  * @author
- * @author  Last changed by: $Author$
- * @version $Revision$, $Date$
+ * @author  Last changed by: $Author: stedwar2 $
+ * @version $Revision: 1.3 $, $Date: 2015/11/30 15:45:37 $
  */
 public class UuidForUser
     extends _UuidForUser

@@ -1,0 +1,30 @@
+{
+    attributes = (
+        {allowsNull = N; name = id; prototypeName = id; }, 
+        {allowsNull = N; columnName = name; name = name; prototypeName = tinyText; }, 
+        {
+            allowsNull = N; 
+            columnName = sensorDataId; 
+            name = sensorDataId; 
+            prototypeName = foreignId; 
+        }, 
+        {columnName = value; name = value; prototypeName = mediumText; }
+    ); 
+    attributesUsedForLocking = (id, name, sensorDataId, value); 
+    className = "org.webcat.deveventtracker.SensorDataProperty"; 
+    classProperties = (name, sensorData, value); 
+    externalName = SensorDataProperty; 
+    fetchSpecificationDictionary = {}; 
+    name = SensorDataProperty; 
+    primaryKeyAttributes = (id); 
+    relationships = (
+        {
+            destination = SensorData; 
+            isMandatory = Y; 
+            isToMany = N; 
+            joinSemantic = EOInnerJoin; 
+            joins = ({destinationAttribute = id; sourceAttribute = sensorDataId; }); 
+            name = sensorData; 
+        }
+    ); 
+}

@@ -1,5 +1,5 @@
 /*==========================================================================*\
- |  $Id$
+ |  $Id: SensorDataType.java,v 1.3 2015/11/30 15:45:37 stedwar2 Exp $
  |*-------------------------------------------------------------------------*|
  |  Copyright (C) 2015 Virginia Tech
  |
@@ -28,8 +28,8 @@ import com.webobjects.eocontrol.EOEditingContext;
  * TODO: place a real description here.
  *
  * @author
- * @author  Last changed by: $Author$
- * @version $Revision$, $Date$
+ * @author  Last changed by: $Author: stedwar2 $
+ * @version $Revision: 1.3 $, $Date: 2015/11/30 15:45:37 $
  */
 public class SensorDataType
     extends _SensorDataType
@@ -63,12 +63,11 @@ public class SensorDataType
     {
     	SensorDataType storedType = SensorDataType
     	    .uniqueObjectMatchingQualifier(ec, SensorDataType.name.is(type));
-    	if (storedType != null)
+    	if (storedType == null)
     	{
-    		return storedType;
+            storedType = SensorDataType.create(ec, type);
+            ec.saveChanges();
     	}
-    	storedType = SensorDataType.create(ec, type);
-    	ec.saveChanges();
     	return storedType;
     }
 }

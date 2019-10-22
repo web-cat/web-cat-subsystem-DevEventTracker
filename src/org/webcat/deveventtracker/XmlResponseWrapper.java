@@ -1,5 +1,5 @@
 /*==========================================================================*\
- |  $Id$
+ |  $Id: XmlResponseWrapper.java,v 1.1 2015/09/03 06:28:04 jluke13 Exp $
  |*-------------------------------------------------------------------------*|
  |  Copyright (C) 2006-2008 Virginia Tech
  |
@@ -32,8 +32,8 @@ import org.webcat.core.Session;
  * output.
  *
  * @author  Stephen Edwards
- * @author  Last changed by $Author$
- * @version $Revision$, $Date$
+ * @author  Last changed by $Author: jluke13 $
+ * @version $Revision: 1.1 $, $Date: 2015/09/03 06:28:04 $
  */
 public class XmlResponseWrapper
     extends WOComponent

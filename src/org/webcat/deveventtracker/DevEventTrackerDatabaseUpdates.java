@@ -1,5 +1,5 @@
 /*==========================================================================*\
- |  $Id$
+ |  $Id: DevEventTrackerDatabaseUpdates.java,v 1.5 2015/11/30 15:45:37 stedwar2 Exp $
  |*-------------------------------------------------------------------------*|
  |  Copyright (C) 2015 Virginia Tech
  |
@@ -31,8 +31,8 @@ import org.webcat.dbupdate.UpdateSet;
  *
  * @author Stephen Edwards
  * @author Joseph Luke
- * @author Last changed by $Author$
- * @version $Revision$, $Date$
+ * @author Last changed by $Author: stedwar2 $
+ * @version $Revision: 1.5 $, $Date: 2015/11/30 15:45:37 $
  */
 public class DevEventTrackerDatabaseUpdates
     extends UpdateSet
@@ -125,6 +125,49 @@ public class DevEventTrackerDatabaseUpdates
         throws SQLException
     {
         createPluginErrorTable();
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Creates the table to store name/value properties.
+     *
+     * @throws SQLException on error
+     */
+    public void updateIncrement5()
+        throws SQLException
+    {
+        createSensorDataPropertyTable();
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Adds more detail columns to the SensorData table.
+     *
+     * @throws SQLException on error
+     */
+    public void updateIncrement6()
+    throws SQLException
+    {
+        database().executeSQL(
+            "alter table SensorData add currentSize INTEGER");
+        database().executeSQL(
+            "alter table SensorData add currentStatements INTEGER");
+        database().executeSQL(
+            "alter table SensorData add currentMethods INTEGER");
+        database().executeSQL(
+            "alter table SensorData add unitName MEDIUMTEXT");
+        database().executeSQL(
+            "alter table SensorData add unitType TINYTEXT");
+        database().executeSQL(
+            "alter table SensorData add type TINYTEXT");
+        database().executeSQL(
+            "alter table SensorData add subtype TINYTEXT");
+        database().executeSQL(
+            "alter table SensorData add subsubtype TINYTEXT");
+        database().executeSQL(
+            "alter table SensorData add onTestCase BIT NOT NULL");
     }
 
 
@@ -244,7 +287,7 @@ public class DevEventTrackerDatabaseUpdates
                 + "uri MEDIUMTEXT, " + "uuid TINYTEXT" + ")");
             database().executeSQL(
                 "ALTER TABLE StudentProject ADD PRIMARY KEY (OID)");
-            createIndexFor("StudentProject", "uuid");
+            createIndexFor("StudentProject", "uuid(12)");
         }
     }
 
@@ -319,7 +362,7 @@ public class DevEventTrackerDatabaseUpdates
             database().executeSQL(
                 "ALTER TABLE UuidForUser ADD PRIMARY KEY (OID)");
             createIndexFor("UuidForUser", "userId");
-            createIndexFor("UuidForUser", "uuid");
+            createIndexFor("UuidForUser", "uuid(12)");
         }
     }
 
@@ -376,6 +419,32 @@ public class DevEventTrackerDatabaseUpdates
                 "ALTER TABLE PluginError ADD PRIMARY KEY (OID)");
             createIndexFor("PluginError", "studentProjectID");
             createIndexFor("PluginError", "uuidForUserID");
+        }
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Create the SensorDataProperty  table, if needed.
+     *
+     * @throws SQLException on error
+     */
+    private void createSensorDataPropertyTable()
+        throws SQLException
+    {
+        if(!database().hasTable("SensorDataProperty"))
+        {
+            log.info("creating table SensorDataProperty");
+            database().executeSQL("create table SensorDataProperty ("
+                + "OID INTEGER NOT NULL, "
+                + "name TINYTEXT NOT NULL, "
+                + "value MEDIUMTEXT, "
+                + "sensorDataId INTEGER NOT NULL"
+                + ")");
+            database().executeSQL(
+                "ALTER TABLE SensorDataProperty ADD PRIMARY KEY (OID)");
+            createIndexFor("SensorDataProperty", "sensorDataId");
+            createIndexFor("SensorDataProperty", "name(12)");
         }
     }
 }

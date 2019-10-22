@@ -1,5 +1,5 @@
 /*==========================================================================*\
- |  $Id$
+ |  $Id: DevEventTracker.java,v 1.2 2015/11/30 15:45:37 stedwar2 Exp $
  |*-------------------------------------------------------------------------*|
  |  Copyright (C) 2015 Virginia Tech
  |
@@ -22,6 +22,8 @@
 package org.webcat.deveventtracker;
 
 import org.webcat.core.Subsystem;
+import org.webcat.woextensions.ECAction;
+import static org.webcat.woextensions.ECAction.run;
 
 //-------------------------------------------------------------------------
 /**
@@ -29,8 +31,8 @@ import org.webcat.core.Subsystem;
  * the HackyStats project.
  *
  * @author  Stephen Edwards
- * @author  Last changed by $Author$
- * @version $Revision$, $Date$
+ * @author  Last changed by $Author: stedwar2 $
+ * @version $Revision: 1.2 $, $Date: 2015/11/30 15:45:37 $
  */
 public class DevEventTracker
     extends Subsystem
@@ -44,5 +46,20 @@ public class DevEventTracker
     public DevEventTracker()
     {
         super();
+    }
+
+
+    //~ Methods ...............................................................
+
+    // ----------------------------------------------------------
+    @Override
+    public void init()
+    {
+        super.init();
+
+        // Register pre-existing sensor data types here
+        run(new ECAction() { public void action() {
+            SensorDataType.getSensorDataType(ec, "DevEvent");
+        }});
     }
 }

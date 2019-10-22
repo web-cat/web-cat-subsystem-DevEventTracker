@@ -64,15 +64,17 @@ public abstract class _SensorData
      * attributes and relationships.
      * @param editingContext The context in which the new object will be
      * inserted
+     * @param onTestCaseValue
      * @param timeValue
-     * @param typeValue
+     * @param sensorDataTypeValue
      * @param userValue
      * @return The newly created object
      */
     public static SensorData create(
         EOEditingContext editingContext,
+        boolean onTestCaseValue,
         NSTimestamp timeValue,
-        org.webcat.deveventtracker.SensorDataType typeValue,
+        org.webcat.deveventtracker.SensorDataType sensorDataTypeValue,
         org.webcat.core.User userValue
         )
     {
@@ -80,8 +82,9 @@ public abstract class _SensorData
             EOUtilities.createAndInsertInstance(
                 editingContext,
                 _SensorData.ENTITY_NAME);
+        eoObject.setOnTestCase(onTestCaseValue);
         eoObject.setTime(timeValue);
-        eoObject.setTypeRelationship(typeValue);
+        eoObject.setSensorDataTypeRelationship(sensorDataTypeValue);
         eoObject.setUserRelationship(userValue);
         return eoObject;
     }
@@ -150,15 +153,42 @@ public abstract class _SensorData
     public static final String COMMIT_HASH_KEY = "commitHash";
     public static final ERXKey<String> commitHash =
         new ERXKey<String>(COMMIT_HASH_KEY);
+    public static final String CURRENT_METHODS_KEY = "currentMethods";
+    public static final ERXKey<Integer> currentMethods =
+        new ERXKey<Integer>(CURRENT_METHODS_KEY);
+    public static final String CURRENT_SIZE_KEY = "currentSize";
+    public static final ERXKey<Integer> currentSize =
+        new ERXKey<Integer>(CURRENT_SIZE_KEY);
+    public static final String CURRENT_STATEMENTS_KEY = "currentStatements";
+    public static final ERXKey<Integer> currentStatements =
+        new ERXKey<Integer>(CURRENT_STATEMENTS_KEY);
+    public static final String ON_TEST_CASE_KEY = "onTestCase";
+    public static final ERXKey<Integer> onTestCase =
+        new ERXKey<Integer>(ON_TEST_CASE_KEY);
     public static final String RUN_TIME_KEY = "runTime";
     public static final ERXKey<NSTimestamp> runTime =
         new ERXKey<NSTimestamp>(RUN_TIME_KEY);
+    public static final String SUBSUBTYPE_KEY = "subsubtype";
+    public static final ERXKey<String> subsubtype =
+        new ERXKey<String>(SUBSUBTYPE_KEY);
+    public static final String SUBTYPE_KEY = "subtype";
+    public static final ERXKey<String> subtype =
+        new ERXKey<String>(SUBTYPE_KEY);
     public static final String TIME_KEY = "time";
     public static final ERXKey<NSTimestamp> time =
         new ERXKey<NSTimestamp>(TIME_KEY);
     public static final String TOOL_KEY = "tool";
     public static final ERXKey<String> tool =
         new ERXKey<String>(TOOL_KEY);
+    public static final String TYPE_KEY = "type";
+    public static final ERXKey<String> type =
+        new ERXKey<String>(TYPE_KEY);
+    public static final String UNIT_NAME_KEY = "unitName";
+    public static final ERXKey<String> unitName =
+        new ERXKey<String>(UNIT_NAME_KEY);
+    public static final String UNIT_TYPE_KEY = "unitType";
+    public static final ERXKey<String> unitType =
+        new ERXKey<String>(UNIT_TYPE_KEY);
     public static final String URI_KEY = "uri";
     public static final ERXKey<String> uri =
         new ERXKey<String>(URI_KEY);
@@ -166,13 +196,16 @@ public abstract class _SensorData
     public static final String PROJECT_KEY = "project";
     public static final ERXKey<org.webcat.deveventtracker.StudentProject> project =
         new ERXKey<org.webcat.deveventtracker.StudentProject>(PROJECT_KEY);
-    public static final String TYPE_KEY = "type";
-    public static final ERXKey<org.webcat.deveventtracker.SensorDataType> type =
-        new ERXKey<org.webcat.deveventtracker.SensorDataType>(TYPE_KEY);
+    public static final String SENSOR_DATA_TYPE_KEY = "sensorDataType";
+    public static final ERXKey<org.webcat.deveventtracker.SensorDataType> sensorDataType =
+        new ERXKey<org.webcat.deveventtracker.SensorDataType>(SENSOR_DATA_TYPE_KEY);
     public static final String USER_KEY = "user";
     public static final ERXKey<org.webcat.core.User> user =
         new ERXKey<org.webcat.core.User>(USER_KEY);
     // To-many relationships ---
+    public static final String PROPERTIES_KEY = "properties";
+    public static final ERXKey<org.webcat.deveventtracker.SensorDataProperty> properties =
+        new ERXKey<org.webcat.deveventtracker.SensorDataProperty>(PROPERTIES_KEY);
     // Fetch specifications ---
     public static final String ENTITY_NAME = "SensorData";
 
@@ -258,6 +291,262 @@ public abstract class _SensorData
 
     // ----------------------------------------------------------
     /**
+     * Retrieve this object's <code>currentMethods</code> value.
+     * @return the value of the attribute
+     */
+    public int currentMethods()
+    {
+        Integer returnValue =
+            (Integer)storedValueForKey( "currentMethods" );
+        return ( returnValue == null )
+            ? 0
+            : returnValue.intValue();
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Change the value of this object's <code>currentMethods</code>
+     * property.
+     *
+     * @param value The new value for this property
+     */
+    public void setCurrentMethods( int value )
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug( "setCurrentMethods("
+                + value + "): was " + currentMethods() );
+        }
+        Integer actual =
+            er.extensions.eof.ERXConstant.integerForInt( value );
+            setCurrentMethodsRaw( actual );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Retrieve this object's <code>currentMethods</code> value.
+     * @return the value of the attribute
+     */
+    public Integer currentMethodsRaw()
+    {
+        return (Integer)storedValueForKey( "currentMethods" );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Change the value of this object's <code>currentMethods</code>
+     * property.
+     *
+     * @param value The new value for this property
+     */
+    public void setCurrentMethodsRaw( Integer value )
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug( "setCurrentMethodsRaw("
+                + value + "): was " + currentMethodsRaw() );
+        }
+        takeStoredValueForKey( value, "currentMethods" );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Retrieve this object's <code>currentSize</code> value.
+     * @return the value of the attribute
+     */
+    public int currentSize()
+    {
+        Integer returnValue =
+            (Integer)storedValueForKey( "currentSize" );
+        return ( returnValue == null )
+            ? 0
+            : returnValue.intValue();
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Change the value of this object's <code>currentSize</code>
+     * property.
+     *
+     * @param value The new value for this property
+     */
+    public void setCurrentSize( int value )
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug( "setCurrentSize("
+                + value + "): was " + currentSize() );
+        }
+        Integer actual =
+            er.extensions.eof.ERXConstant.integerForInt( value );
+            setCurrentSizeRaw( actual );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Retrieve this object's <code>currentSize</code> value.
+     * @return the value of the attribute
+     */
+    public Integer currentSizeRaw()
+    {
+        return (Integer)storedValueForKey( "currentSize" );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Change the value of this object's <code>currentSize</code>
+     * property.
+     *
+     * @param value The new value for this property
+     */
+    public void setCurrentSizeRaw( Integer value )
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug( "setCurrentSizeRaw("
+                + value + "): was " + currentSizeRaw() );
+        }
+        takeStoredValueForKey( value, "currentSize" );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Retrieve this object's <code>currentStatements</code> value.
+     * @return the value of the attribute
+     */
+    public int currentStatements()
+    {
+        Integer returnValue =
+            (Integer)storedValueForKey( "currentStatements" );
+        return ( returnValue == null )
+            ? 0
+            : returnValue.intValue();
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Change the value of this object's <code>currentStatements</code>
+     * property.
+     *
+     * @param value The new value for this property
+     */
+    public void setCurrentStatements( int value )
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug( "setCurrentStatements("
+                + value + "): was " + currentStatements() );
+        }
+        Integer actual =
+            er.extensions.eof.ERXConstant.integerForInt( value );
+            setCurrentStatementsRaw( actual );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Retrieve this object's <code>currentStatements</code> value.
+     * @return the value of the attribute
+     */
+    public Integer currentStatementsRaw()
+    {
+        return (Integer)storedValueForKey( "currentStatements" );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Change the value of this object's <code>currentStatements</code>
+     * property.
+     *
+     * @param value The new value for this property
+     */
+    public void setCurrentStatementsRaw( Integer value )
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug( "setCurrentStatementsRaw("
+                + value + "): was " + currentStatementsRaw() );
+        }
+        takeStoredValueForKey( value, "currentStatements" );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Retrieve this object's <code>onTestCase</code> value.
+     * @return the value of the attribute
+     */
+    public boolean onTestCase()
+    {
+        Integer returnValue =
+            (Integer)storedValueForKey( "onTestCase" );
+        return ( returnValue == null )
+            ? true
+            : ( returnValue.intValue() > 0 );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Change the value of this object's <code>onTestCase</code>
+     * property.
+     *
+     * @param value The new value for this property
+     */
+    public void setOnTestCase( boolean value )
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug( "setOnTestCase("
+                + value + "): was " + onTestCase() );
+        }
+        Integer actual =
+            er.extensions.eof.ERXConstant.integerForInt( value ? 1 : 0 );
+            setOnTestCaseRaw( actual );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Retrieve this object's <code>onTestCase</code> value.
+     * @return the value of the attribute
+     */
+    public Integer onTestCaseRaw()
+    {
+        return (Integer)storedValueForKey( "onTestCase" );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Change the value of this object's <code>onTestCase</code>
+     * property.
+     *
+     * @param value The new value for this property
+     */
+    public void setOnTestCaseRaw( Integer value )
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug( "setOnTestCaseRaw("
+                + value + "): was " + onTestCaseRaw() );
+        }
+        takeStoredValueForKey( value, "onTestCase" );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
      * Retrieve this object's <code>runTime</code> value.
      * @return the value of the attribute
      */
@@ -282,6 +571,64 @@ public abstract class _SensorData
                 + value + "): was " + runTime() );
         }
         takeStoredValueForKey( value, "runTime" );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Retrieve this object's <code>subsubtype</code> value.
+     * @return the value of the attribute
+     */
+    public String subsubtype()
+    {
+        return (String)storedValueForKey( "subsubtype" );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Change the value of this object's <code>subsubtype</code>
+     * property.
+     *
+     * @param value The new value for this property
+     */
+    public void setSubsubtype( String value )
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug( "setSubsubtype("
+                + value + "): was " + subsubtype() );
+        }
+        takeStoredValueForKey( value, "subsubtype" );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Retrieve this object's <code>subtype</code> value.
+     * @return the value of the attribute
+     */
+    public String subtype()
+    {
+        return (String)storedValueForKey( "subtype" );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Change the value of this object's <code>subtype</code>
+     * property.
+     *
+     * @param value The new value for this property
+     */
+    public void setSubtype( String value )
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug( "setSubtype("
+                + value + "): was " + subtype() );
+        }
+        takeStoredValueForKey( value, "subtype" );
     }
 
 
@@ -340,6 +687,93 @@ public abstract class _SensorData
                 + value + "): was " + tool() );
         }
         takeStoredValueForKey( value, "tool" );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Retrieve this object's <code>type</code> value.
+     * @return the value of the attribute
+     */
+    public String type()
+    {
+        return (String)storedValueForKey( "type" );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Change the value of this object's <code>type</code>
+     * property.
+     *
+     * @param value The new value for this property
+     */
+    public void setType( String value )
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug( "setType("
+                + value + "): was " + type() );
+        }
+        takeStoredValueForKey( value, "type" );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Retrieve this object's <code>unitName</code> value.
+     * @return the value of the attribute
+     */
+    public String unitName()
+    {
+        return (String)storedValueForKey( "unitName" );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Change the value of this object's <code>unitName</code>
+     * property.
+     *
+     * @param value The new value for this property
+     */
+    public void setUnitName( String value )
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug( "setUnitName("
+                + value + "): was " + unitName() );
+        }
+        takeStoredValueForKey( value, "unitName" );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Retrieve this object's <code>unitType</code> value.
+     * @return the value of the attribute
+     */
+    public String unitType()
+    {
+        return (String)storedValueForKey( "unitType" );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Change the value of this object's <code>unitType</code>
+     * property.
+     *
+     * @param value The new value for this property
+     */
+    public void setUnitType( String value )
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug( "setUnitType("
+                + value + "): was " + unitType() );
+        }
+        takeStoredValueForKey( value, "unitType" );
     }
 
 
@@ -435,61 +869,61 @@ public abstract class _SensorData
 
     // ----------------------------------------------------------
     /**
-     * Retrieve the entity pointed to by the <code>type</code>
+     * Retrieve the entity pointed to by the <code>sensorDataType</code>
      * relationship.
      * @return the entity in the relationship
      */
-    public org.webcat.deveventtracker.SensorDataType type()
+    public org.webcat.deveventtracker.SensorDataType sensorDataType()
     {
-        return (org.webcat.deveventtracker.SensorDataType)storedValueForKey( "type" );
+        return (org.webcat.deveventtracker.SensorDataType)storedValueForKey( "sensorDataType" );
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Set the entity pointed to by the <code>type</code>
+     * Set the entity pointed to by the <code>sensorDataType</code>
      * relationship (DO NOT USE--instead, use
-     * <code>setTypeRelationship()</code>.
+     * <code>setSensorDataTypeRelationship()</code>.
      * This method is provided for WebObjects use.
      *
      * @param value The new entity to relate to
      */
-    public void setType( org.webcat.deveventtracker.SensorDataType value )
+    public void setSensorDataType( org.webcat.deveventtracker.SensorDataType value )
     {
         if (log.isDebugEnabled())
         {
-            log.debug( "setType("
-                + value + "): was " + type() );
+            log.debug( "setSensorDataType("
+                + value + "): was " + sensorDataType() );
         }
-        takeStoredValueForKey( value, "type" );
+        takeStoredValueForKey( value, "sensorDataType" );
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Set the entity pointed to by the <code>type</code>
+     * Set the entity pointed to by the <code>sensorDataType</code>
      * relationship.  This method is a type-safe version of
      * <code>addObjectToBothSidesOfRelationshipWithKey()</code>.
      *
      * @param value The new entity to relate to
      */
-    public void setTypeRelationship(
+    public void setSensorDataTypeRelationship(
         org.webcat.deveventtracker.SensorDataType value )
     {
         if (log.isDebugEnabled())
         {
-            log.debug( "setTypeRelationship("
-                + value + "): was " + type() );
+            log.debug( "setSensorDataTypeRelationship("
+                + value + "): was " + sensorDataType() );
         }
         if ( value == null )
         {
-            org.webcat.deveventtracker.SensorDataType object = type();
+            org.webcat.deveventtracker.SensorDataType object = sensorDataType();
             if ( object != null )
-                removeObjectFromBothSidesOfRelationshipWithKey( object, "type" );
+                removeObjectFromBothSidesOfRelationshipWithKey( object, "sensorDataType" );
         }
         else
         {
-            addObjectToBothSidesOfRelationshipWithKey( value, "type" );
+            addObjectToBothSidesOfRelationshipWithKey( value, "sensorDataType" );
         }
     }
 
@@ -551,6 +985,186 @@ public abstract class _SensorData
         else
         {
             addObjectToBothSidesOfRelationshipWithKey( value, "user" );
+        }
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Retrieve the entities pointed to by the <code>properties</code>
+     * relationship.
+     * @return an NSArray of the entities in the relationship
+     */
+    @SuppressWarnings("unchecked")
+    public NSArray<org.webcat.deveventtracker.SensorDataProperty> properties()
+    {
+        return (NSArray<org.webcat.deveventtracker.SensorDataProperty>)
+            storedValueForKey("properties");
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Replace the list of entities pointed to by the
+     * <code>properties</code> relationship.
+     *
+     * @param value The new set of entities to relate to
+     */
+    public void setProperties(
+        NSMutableArray<org.webcat.deveventtracker.SensorDataProperty>  value)
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug("setProperties("
+                + value + "): was " + properties());
+        }
+        takeStoredValueForKey(value, "properties");
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Add a new entity to the <code>properties</code>
+     * relationship (DO NOT USE--instead, use
+     * <code>addToPropertiesRelationship()</code>.
+     * This method is provided for WebObjects use.
+     *
+     * @param value The new entity to relate to
+     */
+    public void addToProperties( org.webcat.deveventtracker.SensorDataProperty value )
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug( "addToProperties("
+                + value + "): was " + properties() );
+        }
+        NSMutableArray<org.webcat.deveventtracker.SensorDataProperty> array =
+            (NSMutableArray<org.webcat.deveventtracker.SensorDataProperty>)properties();
+        willChange();
+        array.addObject( value );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Remove a specific entity from the <code>properties</code>
+     * relationship (DO NOT USE--instead, use
+     * <code>removeFromPropertiesRelationship()</code>.
+     * This method is provided for WebObjects use.
+     *
+     * @param value The entity to remove from the relationship
+     */
+    public void removeFromProperties( org.webcat.deveventtracker.SensorDataProperty value )
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug( "RemoveFromProperties("
+                + value + "): was " + properties() );
+        }
+        NSMutableArray<org.webcat.deveventtracker.SensorDataProperty> array =
+            (NSMutableArray<org.webcat.deveventtracker.SensorDataProperty>)properties();
+        willChange();
+        array.removeObject( value );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Add a new entity to the <code>properties</code>
+     * relationship.
+     *
+     * @param value The new entity to relate to
+     */
+    public void addToPropertiesRelationship( org.webcat.deveventtracker.SensorDataProperty value )
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug( "addToPropertiesRelationship("
+                + value + "): was " + properties() );
+        }
+        addObjectToBothSidesOfRelationshipWithKey(
+            value, "properties" );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Remove a specific entity from the <code>properties</code>
+     * relationship.
+     *
+     * @param value The entity to remove from the relationship
+     */
+    public void removeFromPropertiesRelationship( org.webcat.deveventtracker.SensorDataProperty value )
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug( "removeFromPropertiesRelationship("
+                + value + "): was " + properties() );
+        }
+        removeObjectFromBothSidesOfRelationshipWithKey(
+            value, "properties" );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Create a brand new object that is a member of the
+     * <code>properties</code> relationship.
+     *
+     * @return The new entity
+     */
+    public org.webcat.deveventtracker.SensorDataProperty createPropertiesRelationship()
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug( "createPropertiesRelationship()" );
+        }
+        EOClassDescription eoClassDesc = EOClassDescription
+            .classDescriptionForEntityName( "SensorDataProperty" );
+        EOEnterpriseObject eoObject = eoClassDesc
+            .createInstanceWithEditingContext( editingContext(), null );
+        editingContext().insertObject( eoObject );
+        addObjectToBothSidesOfRelationshipWithKey(
+            eoObject, "properties" );
+        return (org.webcat.deveventtracker.SensorDataProperty)eoObject;
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Remove and then delete a specific entity that is a member of the
+     * <code>properties</code> relationship.
+     *
+     * @param value The entity to remove from the relationship and then delete
+     */
+    public void deletePropertiesRelationship( org.webcat.deveventtracker.SensorDataProperty value )
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug( "deletePropertiesRelationship("
+                + value + "): was " + properties() );
+        }
+        removeObjectFromBothSidesOfRelationshipWithKey(
+            value, "properties" );
+        editingContext().deleteObject( value );
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Remove (and then delete, if owned) all entities that are members of the
+     * <code>properties</code> relationship.
+     */
+    public void deleteAllPropertiesRelationships()
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug( "deleteAllPropertiesRelationships(): was "
+                + properties() );
+        }
+        for (org.webcat.deveventtracker.SensorDataProperty object : properties())
+        {
+            deletePropertiesRelationship(object);
         }
     }
 

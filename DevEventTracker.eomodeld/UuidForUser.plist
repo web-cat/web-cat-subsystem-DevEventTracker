@@ -13,13 +13,6 @@
     primaryKeyAttributes = (id); 
     relationships = (
         {
-            destination = PluginError; 
-            isToMany = Y; 
-            joinSemantic = EOInnerJoin; 
-            joins = ({destinationAttribute = uuidForUserID; sourceAttribute = id; }); 
-            name = pluginErrors; 
-        }, 
-        {
             definition = "studentProjectUuidForUsers.studentProject"; 
             name = studentProjects; 
         }, 

@@ -15,6 +15,20 @@
         {allowsNull = N; name = id; prototypeName = id; }, 
         {columnName = lineNumber; name = lineNumber; prototypeName = integer; }, 
         {columnName = methodName; name = methodName; prototypeName = mediumText; }, 
+        {columnName = mostRecent; name = mostRecent; prototypeName = dateTime; }, 
+        {
+            allowsNull = N; 
+            columnName = occurrences; 
+            name = occurrences; 
+            prototypeName = integer; 
+            userInfo = {
+                isScalar = true; 
+                scalarConversionMethodName = intValue; 
+                scalarDefault = 0; 
+                type = int; 
+                valueClassName = Integer; 
+            }; 
+        }, 
         {columnName = stackTrace; name = stackTrace; prototypeName = longText; }, 
         {
             allowsNull = Y; 
